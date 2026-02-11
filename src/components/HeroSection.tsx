@@ -85,19 +85,13 @@ const HeroSection = ({ onRegisterClick }: HeroSectionProps) => {
           <div className="stats-card animate-float" style={{ animationDelay: "0s" }}>
             <div className="flex items-center gap-2 text-primary-foreground">
               <IndianRupee className="h-5 w-5 text-secondary" />
-              <span className="font-display font-semibold">₹30 Registration</span>
+              <span className="font-display font-semibold">₹30 Individual Registration</span>
             </div>
           </div>
          <div className="stats-card animate-float" style={{ animationDelay: "0s" }}>
             <div className="flex items-center gap-2 text-primary-foreground">
               <IndianRupee className="h-5 w-5 text-secondary" />
-              <span className="font-display font-semibold">₹30 Registration</span>
-            </div>
-          </div>
-          <div className="stats-card animate-float" style={{ animationDelay: "1s" }}>
-            <div className="flex items-center gap-2 text-primary-foreground">
-              <CheckCircle className="h-5 w-5 text-secondary" />
-              <span className="font-display font-semibold">Instant Confirmation</span>
+              <span className="font-display font-semibold">₹50 For Team Registration</span>
             </div>
           </div>
         </motion.div>
