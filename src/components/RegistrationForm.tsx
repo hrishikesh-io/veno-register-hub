@@ -2,48 +2,62 @@ import { useState, forwardRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { motion } from "framer-motion";
-import { User, Mail, Phone, GraduationCap, BookOpen, IndianRupee, Loader2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { User, Mail, Phone, GraduationCap, Loader2, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import EventSelection from "./EventSelection";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { DEPARTMENTS, EVENT_CATEGORIES } from "@/lib/events";
 
 const formSchema = z.object({
   name: z.string().trim().min(3, "Name must be at least 3 characters").max(100),
-  gender: z.enum(["Male", "Female"], { required_error: "Please select your gender" }),
   email: z.string().trim().email("Please enter a valid email").max(255),
   phone: z.string().regex(/^[6-9]\d{9}$/, "Please enter a valid 10-digit Indian phone number"),
   college: z.string().trim().min(2, "College name is required").max(200),
-  department: z.string().trim().min(2, "Department/Class is required").max(200),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
 const RegistrationForm = forwardRef<HTMLDivElement>((_, ref) => {
+  const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
   const [selectedEvents, setSelectedEvents] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [eventError, setEventError] = useState("");
+  const [showSuccess, setShowSuccess] = useState(false);
   const { toast } = useToast();
-  const navigate = useNavigate();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
+    defaultValues: { college: "MVGM GPC Vennikulam" },
   });
+
+  const toggleDepartment = (deptId: string) => {
+    setSelectedDepartments((prev) => {
+      const next = prev.includes(deptId) ? prev.filter((id) => id !== deptId) : [...prev, deptId];
+      // Remove events from deselected departments
+      if (!next.includes(deptId)) {
+        const cat = EVENT_CATEGORIES.find((c) => c.id === deptId);
+        if (cat) {
+          const eventIds = cat.events.map((e) => e.id);
+          setSelectedEvents((prev) => prev.filter((id) => !eventIds.includes(id)));
+        }
+      }
+      return next;
+    });
+  };
 
   const toggleEvent = (eventId: string) => {
     setSelectedEvents((prev) =>
-      prev.includes(eventId)
-        ? prev.filter((id) => id !== eventId)
-        : [...prev, eventId]
+      prev.includes(eventId) ? prev.filter((id) => id !== eventId) : [...prev, eventId]
     );
     setEventError("");
   };
@@ -74,27 +88,27 @@ const RegistrationForm = forwardRef<HTMLDivElement>((_, ref) => {
         return;
       }
 
-      // Insert registration
-      const { data: registration, error } = await supabase
+      const { error } = await supabase
         .from("registrations")
         .insert({
           name: data.name,
-          gender: data.gender,
+          gender: "Not specified",
           email: data.email.toLowerCase(),
           phone: data.phone,
           college: data.college,
-          department: data.department,
+          department: selectedDepartments.join(", "),
+          departments_selected: selectedDepartments,
           selected_events: selectedEvents,
-          payment_status: "paid",
-          payment_id: "DEMO-" + Date.now(),
-          amount: 30,
+          total_events: selectedEvents.length,
+          payment_status: "registered",
+          amount: 0,
           reg_id: "",
-        })
+        } as any)
         .select()
         .single();
 
       if (error) {
-        if (error.message.includes("duplicate")) {
+        if (error.message.includes("duplicate") || error.message.includes("idx_registrations_email_unique")) {
           toast({
             title: "Already Registered",
             description: "This email is already registered.",
@@ -107,7 +121,14 @@ const RegistrationForm = forwardRef<HTMLDivElement>((_, ref) => {
         return;
       }
 
-      navigate(`/registration-success?id=${registration.reg_id}&events=${selectedEvents.join(",")}`);
+      // Show success popup
+      setShowSuccess(true);
+      setTimeout(() => {
+        setShowSuccess(false);
+        reset();
+        setSelectedDepartments([]);
+        setSelectedEvents([]);
+      }, 3000);
     } catch (err: any) {
       console.error("Registration error:", err);
       toast({
@@ -122,6 +143,37 @@ const RegistrationForm = forwardRef<HTMLDivElement>((_, ref) => {
 
   return (
     <section ref={ref} className="section-gradient py-16 md:py-24 px-4" id="register">
+      {/* Success Popup */}
+      <AnimatePresence>
+        {showSuccess && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              className="bg-card rounded-2xl p-10 text-center shadow-2xl max-w-sm mx-4"
+            >
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+              >
+                <CheckCircle className="h-20 w-20 text-green-500 mx-auto mb-4" />
+              </motion.div>
+              <h2 className="font-display text-2xl font-bold text-foreground mb-2">
+                Registration Successful.
+              </h2>
+              <p className="text-muted-foreground text-sm">Auto-closing in 3 seconds...</p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="container max-w-4xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -138,7 +190,7 @@ const RegistrationForm = forwardRef<HTMLDivElement>((_, ref) => {
         </motion.div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
-          {/* Personal Details Card */}
+          {/* Step 1: Personal Details */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -146,41 +198,17 @@ const RegistrationForm = forwardRef<HTMLDivElement>((_, ref) => {
             className="card-elevated p-6 md:p-8"
           >
             <h3 className="font-display text-xl font-semibold text-foreground mb-6">
-              Personal Details
+              Step 1 — Personal Details
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              {/* Name */}
               <div className="space-y-2">
                 <Label htmlFor="name" className="flex items-center gap-2 text-foreground">
-                  <User className="h-4 w-4 text-primary" /> Name *
+                  <User className="h-4 w-4 text-primary" /> Full Name *
                 </Label>
                 <Input id="name" placeholder="Your full name" {...register("name")} />
                 {errors.name && <p className="text-destructive text-xs">{errors.name.message}</p>}
               </div>
 
-              {/* Gender */}
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2 text-foreground">Gender *</Label>
-                <RadioGroup
-                  onValueChange={(v) => {
-                    const event = { target: { name: "gender", value: v } };
-                    register("gender").onChange(event as any);
-                  }}
-                  className="flex gap-6 pt-2"
-                >
-                  <div className="flex items-center gap-2">
-                    <RadioGroupItem value="Male" id="male" />
-                    <Label htmlFor="male" className="cursor-pointer text-foreground">Male</Label>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <RadioGroupItem value="Female" id="female" />
-                    <Label htmlFor="female" className="cursor-pointer text-foreground">Female</Label>
-                  </div>
-                </RadioGroup>
-                {errors.gender && <p className="text-destructive text-xs">{errors.gender.message}</p>}
-              </div>
-
-              {/* Email */}
               <div className="space-y-2">
                 <Label htmlFor="email" className="flex items-center gap-2 text-foreground">
                   <Mail className="h-4 w-4 text-primary" /> Email *
@@ -189,7 +217,6 @@ const RegistrationForm = forwardRef<HTMLDivElement>((_, ref) => {
                 {errors.email && <p className="text-destructive text-xs">{errors.email.message}</p>}
               </div>
 
-              {/* Phone */}
               <div className="space-y-2">
                 <Label htmlFor="phone" className="flex items-center gap-2 text-foreground">
                   <Phone className="h-4 w-4 text-primary" /> Phone *
@@ -198,7 +225,6 @@ const RegistrationForm = forwardRef<HTMLDivElement>((_, ref) => {
                 {errors.phone && <p className="text-destructive text-xs">{errors.phone.message}</p>}
               </div>
 
-              {/* College */}
               <div className="space-y-2">
                 <Label htmlFor="college" className="flex items-center gap-2 text-foreground">
                   <GraduationCap className="h-4 w-4 text-primary" /> College/Institution *
@@ -206,31 +232,57 @@ const RegistrationForm = forwardRef<HTMLDivElement>((_, ref) => {
                 <Input id="college" placeholder="Your college name" {...register("college")} />
                 {errors.college && <p className="text-destructive text-xs">{errors.college.message}</p>}
               </div>
-
-              {/* Department */}
-              <div className="space-y-2">
-                <Label htmlFor="department" className="flex items-center gap-2 text-foreground">
-                  <BookOpen className="h-4 w-4 text-primary" /> Department/Class *
-                </Label>
-                <Input id="department" placeholder="Your department" {...register("department")} />
-                {errors.department && <p className="text-destructive text-xs">{errors.department.message}</p>}
-              </div>
             </div>
           </motion.div>
 
-          {/* Event Selection */}
-          <EventSelection selectedEvents={selectedEvents} onToggle={toggleEvent} />
+          {/* Step 2: Department Selection */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="card-elevated p-6 md:p-8"
+          >
+            <h3 className="font-display text-xl font-semibold text-foreground mb-6">
+              Step 2 — Select Departments
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+              {DEPARTMENTS.map((dept) => (
+                <label
+                  key={dept.id}
+                  className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-muted/50 cursor-pointer transition-colors"
+                >
+                  <Checkbox
+                    checked={selectedDepartments.includes(dept.id)}
+                    onCheckedChange={() => toggleDepartment(dept.id)}
+                  />
+                  <span className="font-medium text-foreground text-sm">{dept.label}</span>
+                </label>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Step 3: Event Selection */}
+          <EventSelection
+            selectedEvents={selectedEvents}
+            selectedDepartments={selectedDepartments}
+            onToggle={toggleEvent}
+          />
           {eventError && (
             <p className="text-destructive text-sm text-center font-medium">{eventError}</p>
           )}
 
-          {/* Payment Button */}
+          {/* Selected count + Register button */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="text-center pt-4"
           >
+            {selectedEvents.length > 0 && (
+              <p className="text-muted-foreground text-sm mb-4 font-body">
+                {selectedEvents.length} event{selectedEvents.length > 1 ? "s" : ""} selected
+              </p>
+            )}
             <Button
               type="submit"
               size="lg"
@@ -240,18 +292,12 @@ const RegistrationForm = forwardRef<HTMLDivElement>((_, ref) => {
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Processing...
+                  Registering...
                 </>
               ) : (
-                <>
-                  <IndianRupee className="mr-2 h-5 w-5" />
-                  Pay ₹30 & Complete Registration
-                </>
+                "Register"
               )}
             </Button>
-            <p className="text-muted-foreground text-xs mt-3">
-              Secure UPI payment · No card details stored
-            </p>
           </motion.div>
         </form>
       </div>

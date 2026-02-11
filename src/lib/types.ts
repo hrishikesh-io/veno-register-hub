@@ -7,7 +7,9 @@ export interface Registration {
   phone: string;
   college: string;
   department: string;
+  departments_selected: string[];
   selected_events: string[];
+  total_events: number;
   payment_status: string;
   payment_id: string | null;
   amount: number;

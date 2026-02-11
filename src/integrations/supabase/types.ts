@@ -20,8 +20,9 @@ export type Database = {
           college: string
           created_at: string
           department: string
+          departments_selected: Json
           email: string
-          gender: string
+          gender: string | null
           id: string
           name: string
           payment_id: string | null
@@ -29,14 +30,16 @@ export type Database = {
           phone: string
           reg_id: string
           selected_events: Json
+          total_events: number
         }
         Insert: {
           amount?: number
           college: string
           created_at?: string
           department: string
+          departments_selected?: Json
           email: string
-          gender: string
+          gender?: string | null
           id?: string
           name: string
           payment_id?: string | null
@@ -44,14 +47,16 @@ export type Database = {
           phone: string
           reg_id: string
           selected_events?: Json
+          total_events?: number
         }
         Update: {
           amount?: number
           college?: string
           created_at?: string
           department?: string
+          departments_selected?: Json
           email?: string
-          gender?: string
+          gender?: string | null
           id?: string
           name?: string
           payment_id?: string | null
@@ -59,6 +64,7 @@ export type Database = {
           phone?: string
           reg_id?: string
           selected_events?: Json
+          total_events?: number
         }
         Relationships: []
       }

@@ -9,9 +9,12 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import {
-  Users, IndianRupee, AlertCircle, CalendarDays, LogOut, Download, Search, Filter,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+import {
+  Users, CalendarDays, LogOut, Download, Search,
 } from "lucide-react";
-import { EVENT_CATEGORIES, getEventNameById } from "@/lib/events";
+import { EVENT_CATEGORIES, DEPARTMENTS, getAllEvents, getEventNameById, getDepartmentLabel } from "@/lib/events";
 import type { Registration } from "@/lib/types";
 import * as XLSX from "xlsx";
 
@@ -19,7 +22,8 @@ const AdminDashboard = () => {
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [deptFilter, setDeptFilter] = useState<string>("all");
+  const [eventFilter, setEventFilter] = useState<string>("all");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -29,31 +33,22 @@ const AdminDashboard = () => {
 
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      navigate("/admin/login");
-      return;
-    }
+    if (!session) { navigate("/admin/login"); return; }
     const { data: roleData } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", session.user.id)
-      .eq("role", "admin")
-      .maybeSingle();
-    if (!roleData) {
-      await supabase.auth.signOut();
-      navigate("/admin/login");
-    }
+      .from("user_roles").select("role")
+      .eq("user_id", session.user.id).eq("role", "admin").maybeSingle();
+    if (!roleData) { await supabase.auth.signOut(); navigate("/admin/login"); }
   };
 
   const fetchRegistrations = async () => {
     const { data, error } = await supabase
-      .from("registrations")
-      .select("*")
-      .order("created_at", { ascending: false });
+      .from("registrations").select("*").order("created_at", { ascending: false });
     if (!error && data) {
       const mapped = data.map((r: any) => ({
         ...r,
         selected_events: Array.isArray(r.selected_events) ? r.selected_events : [],
+        departments_selected: Array.isArray(r.departments_selected) ? r.departments_selected : [],
+        total_events: r.total_events || 0,
       }));
       setRegistrations(mapped as Registration[]);
     }
@@ -66,58 +61,57 @@ const AdminDashboard = () => {
   };
 
   const filtered = registrations.filter((r) => {
-    const matchesSearch =
-      !search ||
+    const matchesSearch = !search ||
       r.name.toLowerCase().includes(search.toLowerCase()) ||
       r.email.toLowerCase().includes(search.toLowerCase()) ||
       r.college.toLowerCase().includes(search.toLowerCase()) ||
       r.reg_id.toLowerCase().includes(search.toLowerCase());
-    const matchesStatus = statusFilter === "all" || r.payment_status === statusFilter;
-    return matchesSearch && matchesStatus;
+    const matchesDept = deptFilter === "all" ||
+      (r.departments_selected && r.departments_selected.includes(deptFilter));
+    const matchesEvent = eventFilter === "all" ||
+      r.selected_events.includes(eventFilter);
+    return matchesSearch && matchesDept && matchesEvent;
   });
 
-  const totalPaid = registrations.filter((r) => r.payment_status === "paid").length;
-  const totalFailed = registrations.filter((r) => r.payment_status === "failed").length;
   const todayCount = registrations.filter(
     (r) => new Date(r.created_at).toDateString() === new Date().toDateString()
   ).length;
 
-  const exportData = (data: Registration[], filename: string, format: "xlsx" | "csv") => {
-    const rows = data.map((r) => ({
-      "Reg ID": r.reg_id,
+  const exportRows = (data: Registration[]) =>
+    data.map((r) => ({
+      "Registration ID": r.reg_id,
       Name: r.name,
-      Gender: r.gender,
       Email: r.email,
       Phone: r.phone,
       College: r.college,
-      Department: r.department,
-      Events: r.selected_events.map(getEventNameById).join(", "),
-      "Payment Status": r.payment_status,
-      "Payment ID": r.payment_id || "",
-      Amount: r.amount,
+      Departments: (r.departments_selected || []).map(getDepartmentLabel).join(", "),
+      "Events Selected": r.selected_events.map(getEventNameById).join(", "),
+      "Total Events": r.total_events,
       "Date & Time": new Date(r.created_at).toLocaleString(),
     }));
+
+  const downloadFile = (rows: any[], filename: string, format: "xlsx" | "csv") => {
     const ws = XLSX.utils.json_to_sheet(rows);
     if (format === "csv") {
       const csv = XLSX.utils.sheet_to_csv(ws);
       const blob = new Blob([csv], { type: "text/csv" });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${filename}.csv`;
-      a.click();
+      const a = document.createElement("a"); a.href = url; a.download = `${filename}.csv`; a.click();
       URL.revokeObjectURL(url);
     } else {
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+      const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
       XLSX.writeFile(wb, `${filename}.xlsx`);
     }
   };
 
+  const exportData = (data: Registration[], filename: string, format: "xlsx" | "csv") =>
+    downloadFile(exportRows(data), filename, format);
+
   const getEventRegistrations = (eventId: string) =>
-    registrations.filter(
-      (r) => r.selected_events.includes(eventId) && r.payment_status === "paid"
-    );
+    registrations.filter((r) => r.selected_events.includes(eventId));
+
+  const getDeptRegistrations = (deptId: string) =>
+    registrations.filter((r) => r.departments_selected?.includes(deptId));
 
   if (loading) {
     return (
@@ -129,12 +123,9 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <header className="border-b border-border bg-card sticky top-0 z-50">
         <div className="container flex items-center justify-between py-4 px-4">
-          <h1 className="font-display text-xl font-bold text-foreground">
-            Ven-O-vation Admin
-          </h1>
+          <h1 className="font-display text-xl font-bold text-foreground">Ven-O-vation Admin</h1>
           <Button variant="outline" size="sm" onClick={handleLogout} className="gap-2">
             <LogOut className="h-4 w-4" /> Logout
           </Button>
@@ -142,18 +133,16 @@ const AdminDashboard = () => {
       </header>
 
       <div className="container py-8 px-4">
-        {/* Overview Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        {/* Overview */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
           <StatCard icon={Users} label="Total Registrations" value={registrations.length} />
-          <StatCard icon={IndianRupee} label="Total Paid" value={totalPaid} color="text-green-600" />
-          <StatCard icon={AlertCircle} label="Failed Payments" value={totalFailed} color="text-destructive" />
           <StatCard icon={CalendarDays} label="Today" value={todayCount} color="text-primary" />
+          <StatCard icon={Users} label="Total Events Selected" value={registrations.reduce((s, r) => s + r.total_events, 0)} color="text-secondary" />
         </div>
 
         <Tabs defaultValue="participants" className="space-y-6">
-          <TabsList className="grid grid-cols-3 w-full md:w-auto md:inline-grid">
+          <TabsList className="grid grid-cols-2 w-full md:w-auto md:inline-grid">
             <TabsTrigger value="participants">All Participants</TabsTrigger>
-            <TabsTrigger value="programs">Program-wise</TabsTrigger>
             <TabsTrigger value="downloads">Downloads</TabsTrigger>
           </TabsList>
 
@@ -164,24 +153,27 @@ const AdminDashboard = () => {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search by name, email, college, or reg ID..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="pl-10"
+                  value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10"
                 />
               </div>
-              <div className="flex gap-2">
-                {["all", "paid", "failed", "pending"].map((s) => (
-                  <Button
-                    key={s}
-                    size="sm"
-                    variant={statusFilter === s ? "default" : "outline"}
-                    onClick={() => setStatusFilter(s)}
-                    className="capitalize"
-                  >
-                    {s}
-                  </Button>
-                ))}
-              </div>
+              <Select value={deptFilter} onValueChange={setDeptFilter}>
+                <SelectTrigger className="w-full md:w-[200px]"><SelectValue placeholder="Department" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Departments</SelectItem>
+                  {DEPARTMENTS.map((d) => (
+                    <SelectItem key={d.id} value={d.id}>{d.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={eventFilter} onValueChange={setEventFilter}>
+                <SelectTrigger className="w-full md:w-[200px]"><SelectValue placeholder="Event" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Events</SelectItem>
+                  {getAllEvents().map((e) => (
+                    <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="card-elevated overflow-x-auto">
@@ -190,16 +182,19 @@ const AdminDashboard = () => {
                   <TableRow>
                     <TableHead>Reg ID</TableHead>
                     <TableHead>Name</TableHead>
-                    <TableHead>Phone</TableHead>
                     <TableHead>Email</TableHead>
+                    <TableHead>Phone</TableHead>
                     <TableHead>College</TableHead>
-                    <TableHead>Status</TableHead>
+                    <TableHead>Departments</TableHead>
+                    <TableHead>Events</TableHead>
+                    <TableHead>Total</TableHead>
+                    <TableHead>Date & Time</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filtered.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                      <TableCell colSpan={9} className="text-center text-muted-foreground py-8">
                         No registrations found
                       </TableCell>
                     </TableRow>
@@ -208,17 +203,13 @@ const AdminDashboard = () => {
                       <TableRow key={r.id}>
                         <TableCell className="font-mono text-sm font-medium">{r.reg_id}</TableCell>
                         <TableCell className="font-medium">{r.name}</TableCell>
-                        <TableCell>{r.phone}</TableCell>
                         <TableCell className="text-sm">{r.email}</TableCell>
+                        <TableCell>{r.phone}</TableCell>
                         <TableCell className="text-sm">{r.college}</TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={r.payment_status === "paid" ? "default" : "destructive"}
-                            className="capitalize"
-                          >
-                            {r.payment_status}
-                          </Badge>
-                        </TableCell>
+                        <TableCell className="text-sm">{(r.departments_selected || []).map(getDepartmentLabel).join(", ")}</TableCell>
+                        <TableCell className="text-sm max-w-[200px] truncate">{r.selected_events.map(getEventNameById).join(", ")}</TableCell>
+                        <TableCell>{r.total_events}</TableCell>
+                        <TableCell className="text-xs">{new Date(r.created_at).toLocaleString()}</TableCell>
                       </TableRow>
                     ))
                   )}
@@ -227,135 +218,72 @@ const AdminDashboard = () => {
             </div>
           </TabsContent>
 
-          {/* Program-wise */}
-          <TabsContent value="programs" className="space-y-6">
-            {EVENT_CATEGORIES.map((category) => {
-              const Icon = category.icon;
-              return (
-                <div key={category.id} className="card-elevated p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 rounded-lg bg-primary/10">
-                      <Icon className="h-5 w-5 text-primary" />
-                    </div>
-                    <h3 className="font-display font-semibold text-lg text-foreground">
-                      {category.name}
-                    </h3>
-                  </div>
-
-                  <div className="space-y-4">
-                    {category.events.map((event) => {
-                      const eventRegs = getEventRegistrations(event.id);
-                      return (
-                        <div key={event.id} className="border border-border rounded-lg p-4">
-                          <div className="flex items-center justify-between mb-3">
-                            <div>
-                              <h4 className="font-medium text-foreground">{event.name}</h4>
-                              <p className="text-xs text-muted-foreground">{event.description}</p>
-                            </div>
-                            <Badge variant="outline">{eventRegs.length} participants</Badge>
-                          </div>
-                          {eventRegs.length > 0 ? (
-                            <div className="overflow-x-auto">
-                              <Table>
-                                <TableHeader>
-                                  <TableRow>
-                                    <TableHead>Reg ID</TableHead>
-                                    <TableHead>Name</TableHead>
-                                    <TableHead>Phone</TableHead>
-                                    <TableHead>Email</TableHead>
-                                    <TableHead>College</TableHead>
-                                    <TableHead>Status</TableHead>
-                                  </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                  {eventRegs.map((r) => (
-                                    <TableRow key={r.id}>
-                                      <TableCell className="font-mono text-sm">{r.reg_id}</TableCell>
-                                      <TableCell>{r.name}</TableCell>
-                                      <TableCell>{r.phone}</TableCell>
-                                      <TableCell className="text-sm">{r.email}</TableCell>
-                                      <TableCell className="text-sm">{r.college}</TableCell>
-                                      <TableCell>
-                                        <Badge variant="default" className="capitalize">
-                                          {r.payment_status}
-                                        </Badge>
-                                      </TableCell>
-                                    </TableRow>
-                                  ))}
-                                </TableBody>
-                              </Table>
-                            </div>
-                          ) : (
-                            <p className="text-muted-foreground text-sm text-center py-4">
-                              No registrations yet
-                            </p>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-            })}
-          </TabsContent>
-
           {/* Downloads */}
           <TabsContent value="downloads" className="space-y-6">
+            {/* Master CSV */}
             <div className="card-elevated p-6">
               <h3 className="font-display font-semibold text-lg text-foreground mb-4">
-                All Registrations
+                Master List — All Registrations
               </h3>
               <div className="flex gap-3">
-                <Button onClick={() => exportData(registrations, "all_registrations", "xlsx")} className="gap-2">
-                  <Download className="h-4 w-4" /> Download Excel
+                <Button onClick={() => exportData(registrations, "State_TechFest_Registrations", "xlsx")} className="gap-2">
+                  <Download className="h-4 w-4" /> Excel
                 </Button>
-                <Button variant="outline" onClick={() => exportData(registrations, "all_registrations", "csv")} className="gap-2">
-                  <Download className="h-4 w-4" /> Download CSV
+                <Button variant="outline" onClick={() => exportData(registrations, "State_TechFest_Registrations", "csv")} className="gap-2">
+                  <Download className="h-4 w-4" /> CSV
                 </Button>
               </div>
             </div>
 
-            {EVENT_CATEGORIES.map((category) => (
-              <div key={category.id} className="card-elevated p-6">
-                <h3 className="font-display font-semibold text-foreground mb-4">
-                  {category.name}
-                </h3>
-                <div className="space-y-3">
-                  {category.events.map((event) => {
-                    const eventRegs = getEventRegistrations(event.id);
-                    const safeName = event.name.toLowerCase().replace(/[^a-z0-9]+/g, "_");
-                    return (
-                      <div key={event.id} className="flex flex-wrap items-center justify-between gap-2 p-3 rounded-lg bg-muted/50">
-                        <div>
-                          <span className="font-medium text-foreground text-sm">{event.name}</span>
-                          <span className="text-muted-foreground text-xs ml-2">
-                            ({eventRegs.length} participants)
-                          </span>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            disabled={eventRegs.length === 0}
-                            onClick={() => exportData(eventRegs, safeName + "_registrations", "xlsx")}
-                          >
-                            Excel
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            disabled={eventRegs.length === 0}
-                            onClick={() => exportData(eventRegs, safeName + "_registrations", "csv")}
-                          >
-                            CSV
-                          </Button>
-                        </div>
+            {/* Department-wise */}
+            <div className="card-elevated p-6">
+              <h3 className="font-display font-semibold text-lg text-foreground mb-4">Department-wise Downloads</h3>
+              <div className="space-y-3">
+                {DEPARTMENTS.map((dept) => {
+                  const deptRegs = getDeptRegistrations(dept.id);
+                  const safeName = dept.label.replace(/\s+/g, "_") + "_Registrations";
+                  return (
+                    <div key={dept.id} className="flex flex-wrap items-center justify-between gap-2 p-3 rounded-lg bg-muted/50">
+                      <div>
+                        <span className="font-medium text-foreground text-sm">{dept.label}</span>
+                        <span className="text-muted-foreground text-xs ml-2">({deptRegs.length} participants)</span>
                       </div>
-                    );
-                  })}
-                </div>
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline" disabled={deptRegs.length === 0}
+                          onClick={() => exportData(deptRegs, safeName, "xlsx")}>Excel</Button>
+                        <Button size="sm" variant="outline" disabled={deptRegs.length === 0}
+                          onClick={() => exportData(deptRegs, safeName, "csv")}>CSV</Button>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            ))}
+            </div>
+
+            {/* Event-wise */}
+            <div className="card-elevated p-6">
+              <h3 className="font-display font-semibold text-lg text-foreground mb-4">Event-wise Downloads</h3>
+              <div className="space-y-3">
+                {getAllEvents().map((event) => {
+                  const eventRegs = getEventRegistrations(event.id);
+                  const safeName = event.name.replace(/[^a-zA-Z0-9]+/g, "_") + "_Participants";
+                  return (
+                    <div key={event.id} className="flex flex-wrap items-center justify-between gap-2 p-3 rounded-lg bg-muted/50">
+                      <div>
+                        <span className="font-medium text-foreground text-sm">{event.name}</span>
+                        <span className="text-muted-foreground text-xs ml-2">({eventRegs.length} participants)</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline" disabled={eventRegs.length === 0}
+                          onClick={() => exportData(eventRegs, safeName, "xlsx")}>Excel</Button>
+                        <Button size="sm" variant="outline" disabled={eventRegs.length === 0}
+                          onClick={() => exportData(eventRegs, safeName, "csv")}>CSV</Button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </TabsContent>
         </Tabs>
       </div>
@@ -363,17 +291,7 @@ const AdminDashboard = () => {
   );
 };
 
-const StatCard = ({
-  icon: Icon,
-  label,
-  value,
-  color,
-}: {
-  icon: any;
-  label: string;
-  value: number;
-  color?: string;
-}) => (
+const StatCard = ({ icon: Icon, label, value, color }: { icon: any; label: string; value: number; color?: string }) => (
   <div className="card-elevated p-5">
     <div className="flex items-center gap-3">
       <Icon className={`h-5 w-5 ${color || "text-muted-foreground"}`} />

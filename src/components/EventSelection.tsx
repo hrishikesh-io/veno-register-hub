@@ -1,14 +1,27 @@
 import { motion } from "framer-motion";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { EVENT_CATEGORIES } from "@/lib/events";
+import { Badge } from "@/components/ui/badge";
+import { EVENT_CATEGORIES, DEPARTMENTS } from "@/lib/events";
 
 interface EventSelectionProps {
   selectedEvents: string[];
+  selectedDepartments: string[];
   onToggle: (eventId: string) => void;
 }
 
-const EventSelection = ({ selectedEvents, onToggle }: EventSelectionProps) => {
+const EventSelection = ({ selectedEvents, selectedDepartments, onToggle }: EventSelectionProps) => {
+  const visibleCategories = EVENT_CATEGORIES.filter((c) =>
+    selectedDepartments.includes(c.id)
+  );
+
+  if (selectedDepartments.length === 0) {
+    return (
+      <div className="text-center py-8 text-muted-foreground font-body">
+        Please select at least one department above to see available events.
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="text-center mb-8">
@@ -21,11 +34,14 @@ const EventSelection = ({ selectedEvents, onToggle }: EventSelectionProps) => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {EVENT_CATEGORIES.map((category, catIdx) => {
+        {visibleCategories.map((category, catIdx) => {
           const Icon = category.icon;
           const selectedInCategory = category.events.filter((e) =>
             selectedEvents.includes(e.id)
           ).length;
+
+          const day1Events = category.events.filter((e) => e.day === 1);
+          const day2Events = category.events.filter((e) => e.day === 2);
 
           return (
             <motion.div
@@ -52,28 +68,42 @@ const EventSelection = ({ selectedEvents, onToggle }: EventSelectionProps) => {
                 </div>
               </div>
 
-              <div className="space-y-3">
-                {category.events.map((event) => (
-                  <label
-                    key={event.id}
-                    className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
-                  >
-                    <Checkbox
-                      checked={selectedEvents.includes(event.id)}
-                      onCheckedChange={() => onToggle(event.id)}
-                      className="mt-0.5"
-                    />
-                    <div>
-                      <span className="font-medium text-foreground text-sm">
-                        {event.name}
-                      </span>
-                      <p className="text-muted-foreground text-xs mt-0.5">
-                        {event.description}
-                      </p>
+              {[{ label: "Day 1", events: day1Events }, { label: "Day 2", events: day2Events }]
+                .filter((g) => g.events.length > 0)
+                .map((group) => (
+                  <div key={group.label} className="mb-3">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                      {group.label}
+                    </p>
+                    <div className="space-y-2">
+                      {group.events.map((event) => (
+                        <label
+                          key={event.id}
+                          className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
+                        >
+                          <Checkbox
+                            checked={selectedEvents.includes(event.id)}
+                            onCheckedChange={() => onToggle(event.id)}
+                            className="mt-0.5"
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium text-foreground text-sm">
+                                {event.name}
+                              </span>
+                              <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                                {event.type}
+                              </Badge>
+                            </div>
+                            <p className="text-muted-foreground text-xs mt-0.5">
+                              {event.description}
+                            </p>
+                          </div>
+                        </label>
+                      ))}
                     </div>
-                  </label>
+                  </div>
                 ))}
-              </div>
             </motion.div>
           );
         })}
