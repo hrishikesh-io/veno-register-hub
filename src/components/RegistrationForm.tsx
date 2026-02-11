@@ -103,9 +103,7 @@ const RegistrationForm = forwardRef<HTMLDivElement>((_, ref) => {
           payment_status: "registered",
           amount: 0,
           reg_id: "",
-        } as any)
-        .select()
-        .single();
+        } as any);
 
       if (error) {
         if (error.message.includes("duplicate") || error.message.includes("idx_registrations_email_unique")) {
