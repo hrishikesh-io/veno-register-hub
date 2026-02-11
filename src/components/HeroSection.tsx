@@ -88,10 +88,10 @@ const HeroSection = ({ onRegisterClick }: HeroSectionProps) => {
               <span className="font-display font-semibold">₹30 Registration</span>
             </div>
           </div>
-          <div className="stats-card animate-float" style={{ animationDelay: "0.5s" }}>
+         <div className="stats-card animate-float" style={{ animationDelay: "0s" }}>
             <div className="flex items-center gap-2 text-primary-foreground">
-              <Calendar className="h-5 w-5 text-secondary" />
-              <span className="font-display font-semibold">Multiple Events</span>
+              <IndianRupee className="h-5 w-5 text-secondary" />
+              <span className="font-display font-semibold">₹30 Registration</span>
             </div>
           </div>
           <div className="stats-card animate-float" style={{ animationDelay: "1s" }}>
