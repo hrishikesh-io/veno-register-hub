@@ -196,7 +196,7 @@ const RegistrationForm = forwardRef<HTMLDivElement>((_, ref) => {
             className="card-elevated p-6 md:p-8"
           >
             <h3 className="font-display text-xl font-semibold text-foreground mb-6">
-              Step 1 — Personal Details
+             Personal Details
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-2">
@@ -241,7 +241,7 @@ const RegistrationForm = forwardRef<HTMLDivElement>((_, ref) => {
             className="card-elevated p-6 md:p-8"
           >
             <h3 className="font-display text-xl font-semibold text-foreground mb-6">
-              Step 2 — Select Departments
+              Select Departments
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
               {DEPARTMENTS.map((dept) => (
