@@ -161,12 +161,13 @@ const HeroSection = ({ onRegisterClick }: HeroSectionProps) => {
        </div>
        </div>
 
-          <div className="stats-card animate-float" style={{ animationDelay: "0.5s" }}>
-            <div className="flex items-center gap-2 text-primary-foreground">
-              <Calendar className="h-5 w-5 text-secondary" />
-              <span className="font-display font-semibold">₹50 for Group Program</span>
-            </div>
-          </div>
+          <div className="stats-card animate-float" style={{ animationDelay: "0s" }}>
+         <div className="flex items-center gap-2 text-primary-foreground">
+         <span className="font-display font-semibold">
+          ₹50 for Group Program
+         </span>
+       </div>
+       </div>
         </motion.div>
       </div>
 
