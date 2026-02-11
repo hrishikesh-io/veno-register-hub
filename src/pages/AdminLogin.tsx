@@ -28,7 +28,6 @@ const AdminLogin = () => {
 
       if (error) throw error;
 
-      // Check if user has admin role
       const { data: roleData, error: roleError } = await supabase
         .from("user_roles")
         .select("role")
@@ -72,7 +71,7 @@ const AdminLogin = () => {
           </div>
           <h1 className="font-display text-2xl font-bold text-foreground">Admin Login</h1>
           <p className="text-muted-foreground text-sm mt-1 font-body">
-            Ven-O-vation Tech Fest Dashboard
+            Ven-O-vation State Tech Fest Dashboard
           </p>
         </div>
 
@@ -110,9 +109,7 @@ const AdminLogin = () => {
             disabled={loading}
             className="w-full btn-glow text-primary-foreground font-display"
           >
-            {loading ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-            ) : null}
+            {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
             Sign In
           </Button>
         </form>

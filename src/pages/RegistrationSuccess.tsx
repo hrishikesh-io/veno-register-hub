@@ -56,10 +56,6 @@ const RegistrationSuccess = () => {
           </div>
         )}
 
-        <p className="text-muted-foreground text-sm font-body mb-6">
-          Amount Paid: <strong className="text-foreground">₹30</strong>
-        </p>
-
         <Link to="/">
           <Button variant="outline" className="gap-2">
             <ArrowLeft className="h-4 w-4" /> Back to Home
