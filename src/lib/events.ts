@@ -19,7 +19,7 @@ export const EVENT_CATEGORIES: EventCategory[] = [
     name: "Computer Engineering Events",
     icon: Monitor,
     events: [
-      { id: "fast_fingers", name: "Fast Fingers", description: "Typing Speed" },
+      { id: "fast_fingers", name: "Fast Fingers", description: "Typing Speed  Individual" },
       { id: "page_masters", name: "Page Masters", description: "Poster Making" },
       { id: "idea_pitching", name: "Idea Pitching", description: "Innovation Presentation Round" },
       { id: "brain_quest", name: "Brain Quest", description: "Code Debugging" },
