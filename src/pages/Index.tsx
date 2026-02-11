@@ -27,12 +27,12 @@ const Index = () => {
               <Github className="h-4 w-4" /> hrishikesh-io
             </a>
             <a
-              href="https://github.com/kannan-io"
+              href="https://github.com/TheRealAdityaxXD"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 text-foreground hover:text-primary transition-colors"
             >
-              <Github className="h-4 w-4" /> kannan-io
+              <Github className="h-4 w-4" />TheRealAdityaxXD
             </a>
           </div>
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
