@@ -154,11 +154,13 @@ const HeroSection = ({ onRegisterClick }: HeroSectionProps) => {
           className="flex flex-wrap justify-center gap-4 md:gap-6"
         >
           <div className="stats-card animate-float" style={{ animationDelay: "0s" }}>
-            <div className="flex items-center gap-2 text-primary-foreground">
-              <Calendar className="h-5 w-5 text-secondary" />
-              <span className="font-display font-semibold">₹30 for Induvidual Program</span>
-            </div>
-          </div>
+         <div className="flex items-center gap-2 text-primary-foreground">
+         <span className="font-display font-semibold">
+          ₹30 for Individual Program
+         </span>
+       </div>
+       </div>
+
           <div className="stats-card animate-float" style={{ animationDelay: "0.5s" }}>
             <div className="flex items-center gap-2 text-primary-foreground">
               <Calendar className="h-5 w-5 text-secondary" />
