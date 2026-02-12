@@ -168,7 +168,13 @@ const HeroSection = ({ onRegisterClick }: HeroSectionProps) => {
   transition={{ duration: 0.8, delay: 0.8 }}
   className="flex flex-wrap justify-center gap-4 md:gap-6"
 >
-  <div className="stats-card animate-float bg-indigo-800/40 backdrop-blur-md border border-white/20">
+  <div className="animate-float rounded-2xl px-6 py-4 
+                  bg-gradient-to-br from-blue-500/20 to-purple-600/20 
+                  backdrop-blur-xl 
+                  border border-white/20 
+                  shadow-xl 
+                  hover:scale-105 hover:shadow-2xl 
+                  transition-all duration-300">
     <div className="flex items-center gap-2 text-white">
       <span className="font-display font-semibold">
         ₹30 for Individual Program
@@ -176,7 +182,13 @@ const HeroSection = ({ onRegisterClick }: HeroSectionProps) => {
     </div>
   </div>
 
-  <div className="stats-card animate-float bg-indigo-800/40 backdrop-blur-md border border-white/20">
+  <div className="animate-float rounded-2xl px-6 py-4 
+                  bg-gradient-to-br from-blue-500/20 to-purple-600/20 
+                  backdrop-blur-xl 
+                  border border-white/20 
+                  shadow-xl 
+                  hover:scale-105 hover:shadow-2xl 
+                  transition-all duration-300">
     <div className="flex items-center gap-2 text-white">
       <span className="font-display font-semibold">
         ₹50 for Group Program
@@ -184,6 +196,7 @@ const HeroSection = ({ onRegisterClick }: HeroSectionProps) => {
     </div>
   </div>
 </motion.div>
+
 
       </div>
 
