@@ -163,22 +163,28 @@ const HeroSection = ({ onRegisterClick }: HeroSectionProps) => {
 
         {/* Floating Stats */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.8 }}
-          className="flex flex-wrap justify-center gap-4 md:gap-6"
-        >
-          <div className="stats-card animate-float" style={{ animationDelay: "0s" }}>
-            <div className="flex items-center gap-2 text-primary-foreground">
-              <span className="font-display font-semibold">₹30 for Individual Program</span>
-            </div>
-          </div>
-          <div className="stats-card animate-float" style={{ animationDelay: "0s" }}>
-            <div className="flex items-center gap-2 text-primary-foreground">
-              <span className="font-display font-semibold">₹50 for Group Program</span>
-            </div>
-          </div>
-        </motion.div>
+  initial={{ opacity: 0, y: 30 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.8, delay: 0.8 }}
+  className="flex flex-wrap justify-center gap-4 md:gap-6"
+>
+  <div className="stats-card animate-float bg-indigo-800/40 backdrop-blur-md border border-white/20">
+    <div className="flex items-center gap-2 text-white">
+      <span className="font-display font-semibold">
+        ₹30 for Individual Program
+      </span>
+    </div>
+  </div>
+
+  <div className="stats-card animate-float bg-indigo-800/40 backdrop-blur-md border border-white/20">
+    <div className="flex items-center gap-2 text-white">
+      <span className="font-display font-semibold">
+        ₹50 for Group Program
+      </span>
+    </div>
+  </div>
+</motion.div>
+
       </div>
 
       {/* Floating Register Button (mobile) */}
