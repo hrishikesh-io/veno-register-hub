@@ -96,12 +96,13 @@ const HeroSection = ({ onRegisterClick }: HeroSectionProps) => {
 
           {/* Centered Ven-O-vation logo image */}
           <div className="flex justify-center mb-6">
-            <img
-              src={newveno}
-              alt="Ven-O-vation"
-              className="h-32 sm:h-40 md:h-52 lg:h-64 object-contain"
-            />
+          <img
+           src={newveno}
+             alt="Ven-O-vation"
+              className="w-3/4 sm:w-2/3 md:w-1/2 lg:w-2/5 object-contain"
+           />
           </div>
+
 
           <h2 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-2 opacity-80">
             State Tech Fest 2026
