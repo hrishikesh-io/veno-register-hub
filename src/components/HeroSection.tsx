@@ -105,7 +105,7 @@ const HeroSection = ({ onRegisterClick }: HeroSectionProps) => {
 
 
           <h2 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-2 opacity-80">
-            State Tech Fest 2026
+            State Level Tech Fest 2026
           </h2>
           <p className="text-secondary font-display text-xl md:text-2xl font-bold mb-6">
             19, 20 Feb
