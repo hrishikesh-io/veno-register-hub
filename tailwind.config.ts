@@ -23,7 +23,6 @@ export default {
   				'sans-serif'
   			],
   			sans: [
-  				'Open Sans',
   				'ui-sans-serif',
   				'system-ui',
   				'sans-serif',
