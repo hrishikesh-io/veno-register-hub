@@ -16,8 +16,7 @@ export type Database = {
     Tables: {
       registrations: {
         Row: {
-          amount: number
-          college: string
+          college_school: string
           created_at: string
           department: string
           departments_selected: Json
@@ -25,16 +24,14 @@ export type Database = {
           gender: string | null
           id: string
           name: string
-          payment_id: string | null
-          payment_status: string
           phone: string
           reg_id: string
           selected_events: Json
+          status: string
           total_events: number
         }
         Insert: {
-          amount?: number
-          college: string
+          college_school: string
           created_at?: string
           department: string
           departments_selected?: Json
@@ -42,16 +39,14 @@ export type Database = {
           gender?: string | null
           id?: string
           name: string
-          payment_id?: string | null
-          payment_status?: string
           phone: string
           reg_id: string
           selected_events?: Json
+          status?: string
           total_events?: number
         }
         Update: {
-          amount?: number
-          college?: string
+          college_school?: string
           created_at?: string
           department?: string
           departments_selected?: Json
@@ -59,11 +54,10 @@ export type Database = {
           gender?: string | null
           id?: string
           name?: string
-          payment_id?: string | null
-          payment_status?: string
           phone?: string
           reg_id?: string
           selected_events?: Json
+          status?: string
           total_events?: number
         }
         Relationships: []

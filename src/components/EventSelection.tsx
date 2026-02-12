@@ -1,57 +1,46 @@
 import { motion } from "framer-motion";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { EVENT_CATEGORIES, DEPARTMENTS } from "@/lib/events";
+import { EVENT_CATEGORIES } from "@/lib/events";
 
 interface EventSelectionProps {
   selectedEvents: string[];
-  selectedDepartments: string[];
   onToggle: (eventId: string) => void;
 }
 
-const EventSelection = ({ selectedEvents, selectedDepartments, onToggle }: EventSelectionProps) => {
-  const visibleCategories = EVENT_CATEGORIES.filter((c) =>
-    selectedDepartments.includes(c.id)
-  );
-
-  if (selectedDepartments.length === 0) {
-    return (
-      <div className="text-center py-8 text-muted-foreground font-body">
-        Please select at least one department above to see available events.
-      </div>
-    );
-  }
-
+const EventSelection = ({ selectedEvents, onToggle }: EventSelectionProps) => {
   return (
     <div className="space-y-6">
-      <div className="text-center mb-8">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        className="text-center mb-8"
+      >
         <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-2">
           Choose Your Events
         </h2>
         <p className="text-muted-foreground font-body">
           Select one or more events to participate in
         </p>
-      </div>
+      </motion.div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {visibleCategories.map((category, catIdx) => {
+      <div className="space-y-8">
+        {EVENT_CATEGORIES.map((category, catIdx) => {
           const Icon = category.icon;
           const selectedInCategory = category.events.filter((e) =>
             selectedEvents.includes(e.id)
           ).length;
 
-          const day1Events = category.events.filter((e) => e.day === 1);
-          const day2Events = category.events.filter((e) => e.day === 2);
-
           return (
             <motion.div
               key={category.id}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: catIdx * 0.1, duration: 0.5 }}
-              className="category-card"
             >
+              {/* Department heading */}
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 rounded-lg bg-primary/10">
                   <Icon className="h-5 w-5 text-primary" />
@@ -68,42 +57,51 @@ const EventSelection = ({ selectedEvents, selectedDepartments, onToggle }: Event
                 </div>
               </div>
 
-              {[{ label: "Day 1", events: day1Events }, { label: "Day 2", events: day2Events }]
-                .filter((g) => g.events.length > 0)
-                .map((group) => (
-                  <div key={group.label} className="mb-3">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                      {group.label}
-                    </p>
-                    <div className="space-y-2">
-                      {group.events.map((event) => (
-                        <label
-                          key={event.id}
-                          className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
-                        >
-                          <Checkbox
-                            checked={selectedEvents.includes(event.id)}
-                            onCheckedChange={() => onToggle(event.id)}
-                            className="mt-0.5"
-                          />
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium text-foreground text-sm">
-                                {event.name}
-                              </span>
-                              <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-                                {event.type}
-                              </Badge>
-                            </div>
-                            <p className="text-muted-foreground text-xs mt-0.5">
-                              {event.description}
-                            </p>
+              {/* Event cards grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {category.events.map((event, evIdx) => {
+                  const isSelected = selectedEvents.includes(event.id);
+                  return (
+                    <motion.label
+                      key={event.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: catIdx * 0.1 + evIdx * 0.05, duration: 0.4 }}
+                      whileHover={{ y: -4, boxShadow: "0 8px 30px -10px hsl(var(--primary) / 0.3)" }}
+                      className={`cursor-pointer rounded-xl border p-4 transition-colors ${
+                        isSelected
+                          ? "border-primary bg-primary/5"
+                          : "border-border bg-card hover:bg-muted/50"
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <Checkbox
+                          checked={isSelected}
+                          onCheckedChange={() => onToggle(event.id)}
+                          className="mt-0.5"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-medium text-foreground text-sm">
+                              {event.name}
+                            </span>
+                            <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                              {event.type}
+                            </Badge>
                           </div>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                ))}
+                          <p className="text-muted-foreground text-xs mt-1">
+                            {event.description}
+                          </p>
+                          <p className="text-muted-foreground text-[10px] mt-1 uppercase tracking-wider">
+                            Day {event.day}
+                          </p>
+                        </div>
+                      </div>
+                    </motion.label>
+                  );
+                })}
+              </div>
             </motion.div>
           );
         })}
