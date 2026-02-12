@@ -105,7 +105,7 @@ const HeroSection = ({ onRegisterClick }: HeroSectionProps) => {
         >
           Ven-O-vation State Tech Fest is a multidisciplinary technical festival by MVGM GPC
           Vennikulam under the Department of Technical Education, in association with
-          SITTTER, bringing together Computer, Civil, Automobile, and Electronics
+          SITTTR, bringing together Computer, Civil, Automobile, and Electronics
           Engineering to promote innovation and collaboration.
         </motion.p>
 
