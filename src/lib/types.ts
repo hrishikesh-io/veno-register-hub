@@ -5,13 +5,11 @@ export interface Registration {
   gender: string;
   email: string;
   phone: string;
-  college: string;
+  college_school: string;
   department: string;
   departments_selected: string[];
   selected_events: string[];
   total_events: number;
-  payment_status: string;
-  payment_id: string | null;
-  amount: number;
+  status: string;
   created_at: string;
 }

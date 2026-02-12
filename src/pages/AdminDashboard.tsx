@@ -64,7 +64,7 @@ const AdminDashboard = () => {
     const matchesSearch = !search ||
       r.name.toLowerCase().includes(search.toLowerCase()) ||
       r.email.toLowerCase().includes(search.toLowerCase()) ||
-      r.college.toLowerCase().includes(search.toLowerCase()) ||
+      r.college_school.toLowerCase().includes(search.toLowerCase()) ||
       r.reg_id.toLowerCase().includes(search.toLowerCase());
     const matchesDept = deptFilter === "all" ||
       (r.departments_selected && r.departments_selected.includes(deptFilter));
@@ -81,12 +81,14 @@ const AdminDashboard = () => {
     data.map((r) => ({
       "Registration ID": r.reg_id,
       Name: r.name,
+      Gender: r.gender,
       Email: r.email,
       Phone: r.phone,
-      College: r.college,
+      "College/School": r.college_school,
       Departments: (r.departments_selected || []).map(getDepartmentLabel).join(", "),
       "Events Selected": r.selected_events.map(getEventNameById).join(", "),
       "Total Events": r.total_events,
+      Status: r.status,
       "Date & Time": new Date(r.created_at).toLocaleString(),
     }));
 
@@ -133,7 +135,6 @@ const AdminDashboard = () => {
       </header>
 
       <div className="container py-8 px-4">
-        {/* Overview */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
           <StatCard icon={Users} label="Total Registrations" value={registrations.length} />
           <StatCard icon={CalendarDays} label="Today" value={todayCount} color="text-primary" />
@@ -146,7 +147,6 @@ const AdminDashboard = () => {
             <TabsTrigger value="downloads">Downloads</TabsTrigger>
           </TabsList>
 
-          {/* All Participants */}
           <TabsContent value="participants" className="space-y-4">
             <div className="flex flex-col md:flex-row gap-3">
               <div className="relative flex-1">
@@ -182,19 +182,21 @@ const AdminDashboard = () => {
                   <TableRow>
                     <TableHead>Reg ID</TableHead>
                     <TableHead>Name</TableHead>
+                    <TableHead>Gender</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Phone</TableHead>
-                    <TableHead>College</TableHead>
+                    <TableHead>College/School</TableHead>
                     <TableHead>Departments</TableHead>
                     <TableHead>Events</TableHead>
                     <TableHead>Total</TableHead>
+                    <TableHead>Status</TableHead>
                     <TableHead>Date & Time</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filtered.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={9} className="text-center text-muted-foreground py-8">
+                      <TableCell colSpan={11} className="text-center text-muted-foreground py-8">
                         No registrations found
                       </TableCell>
                     </TableRow>
@@ -203,12 +205,14 @@ const AdminDashboard = () => {
                       <TableRow key={r.id}>
                         <TableCell className="font-mono text-sm font-medium">{r.reg_id}</TableCell>
                         <TableCell className="font-medium">{r.name}</TableCell>
+                        <TableCell className="text-sm">{r.gender}</TableCell>
                         <TableCell className="text-sm">{r.email}</TableCell>
                         <TableCell>{r.phone}</TableCell>
-                        <TableCell className="text-sm">{r.college}</TableCell>
+                        <TableCell className="text-sm">{r.college_school}</TableCell>
                         <TableCell className="text-sm">{(r.departments_selected || []).map(getDepartmentLabel).join(", ")}</TableCell>
                         <TableCell className="text-sm max-w-[200px] truncate">{r.selected_events.map(getEventNameById).join(", ")}</TableCell>
                         <TableCell>{r.total_events}</TableCell>
+                        <TableCell><Badge variant="outline">{r.status}</Badge></TableCell>
                         <TableCell className="text-xs">{new Date(r.created_at).toLocaleString()}</TableCell>
                       </TableRow>
                     ))
@@ -218,9 +222,7 @@ const AdminDashboard = () => {
             </div>
           </TabsContent>
 
-          {/* Downloads */}
           <TabsContent value="downloads" className="space-y-6">
-            {/* Master CSV */}
             <div className="card-elevated p-6">
               <h3 className="font-display font-semibold text-lg text-foreground mb-4">
                 Master List — All Registrations
@@ -235,7 +237,6 @@ const AdminDashboard = () => {
               </div>
             </div>
 
-            {/* Department-wise */}
             <div className="card-elevated p-6">
               <h3 className="font-display font-semibold text-lg text-foreground mb-4">Department-wise Downloads</h3>
               <div className="space-y-3">
@@ -260,7 +261,6 @@ const AdminDashboard = () => {
               </div>
             </div>
 
-            {/* Event-wise */}
             <div className="card-elevated p-6">
               <h3 className="font-display font-semibold text-lg text-foreground mb-4">Event-wise Downloads</h3>
               <div className="space-y-3">

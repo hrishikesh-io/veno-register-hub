@@ -3,7 +3,8 @@ import { motion } from "framer-motion";
 import { ChevronDown, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/logo.png";
-import mvgmlogo from "@/assets/mvgmlogo.png";
+import newlogo from "@/assets/newlogo.png";
+import newveno from "@/assets/newveno.png";
 
 interface HeroSectionProps {
   onRegisterClick: () => void;
@@ -86,15 +87,28 @@ const HeroSection = ({ onRegisterClick }: HeroSectionProps) => {
             <span className="text-primary-foreground/70 font-body text-sm md:text-base uppercase tracking-[0.3em]">
               MVGM GPC Vennikulam presents
             </span>
-            <img src={mvgmlogo} alt="MVGM Logo" className="h-10 md:h-14 inline-block" />
           </div>
-          <h1 className="font-display text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-primary-foreground mb-6 leading-tight">
-            Ven-O-vation
-            <br />
-            <span className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl opacity-80">
-              State Tech Fest 2026
-            </span>
-          </h1>
+
+          {/* New college logo */}
+          <div className="flex justify-center mb-6">
+            <img src={newlogo} alt="MVGM GPC Logo" className="h-20 md:h-28" />
+          </div>
+
+          {/* Centered Ven-O-vation logo image */}
+          <div className="flex justify-center mb-6">
+            <img
+              src={newveno}
+              alt="Ven-O-vation"
+              className="h-32 sm:h-40 md:h-52 lg:h-64 object-contain"
+            />
+          </div>
+
+          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-2 opacity-80">
+            State Tech Fest 2026
+          </h2>
+          <p className="text-secondary font-display text-xl md:text-2xl font-bold mb-6">
+            19, 20 Feb 2026
+          </p>
         </motion.div>
 
         <motion.p
@@ -154,20 +168,15 @@ const HeroSection = ({ onRegisterClick }: HeroSectionProps) => {
           className="flex flex-wrap justify-center gap-4 md:gap-6"
         >
           <div className="stats-card animate-float" style={{ animationDelay: "0s" }}>
-         <div className="flex items-center gap-2 text-primary-foreground">
-         <span className="font-display font-semibold">
-          ₹30 for Individual Program
-         </span>
-       </div>
-       </div>
-
+            <div className="flex items-center gap-2 text-primary-foreground">
+              <span className="font-display font-semibold">₹30 for Individual Program</span>
+            </div>
+          </div>
           <div className="stats-card animate-float" style={{ animationDelay: "0s" }}>
-         <div className="flex items-center gap-2 text-primary-foreground">
-         <span className="font-display font-semibold">
-          ₹50 for Group Program
-         </span>
-       </div>
-       </div>
+            <div className="flex items-center gap-2 text-primary-foreground">
+              <span className="font-display font-semibold">₹50 for Group Program</span>
+            </div>
+          </div>
         </motion.div>
       </div>
 

@@ -7,23 +7,25 @@ import { User, Mail, Phone, GraduationCap, Loader2, CheckCircle } from "lucide-r
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import EventSelection from "./EventSelection";
 import { supabase } from "@/integrations/supabase/client";
-import { DEPARTMENTS, EVENT_CATEGORIES } from "@/lib/events";
+import { EVENT_CATEGORIES } from "@/lib/events";
 
 const formSchema = z.object({
   name: z.string().trim().min(3, "Name must be at least 3 characters").max(100),
   email: z.string().trim().email("Please enter a valid email").max(255),
   phone: z.string().regex(/^[6-9]\d{9}$/, "Please enter a valid 10-digit Indian phone number"),
-  college: z.string().trim().min(2, "College name is required").max(200),
+  college_school: z.string().trim().min(2, "College/School name is required").max(200),
+  gender: z.enum(["Male", "Female"], { required_error: "Please select your gender" }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
 const RegistrationForm = forwardRef<HTMLDivElement>((_, ref) => {
-  const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
   const [selectedEvents, setSelectedEvents] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [eventError, setEventError] = useState("");
@@ -35,24 +37,22 @@ const RegistrationForm = forwardRef<HTMLDivElement>((_, ref) => {
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
+    watch,
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: { college: "MVGM GPC Vennikulam" },
   });
 
-  const toggleDepartment = (deptId: string) => {
-    setSelectedDepartments((prev) => {
-      const next = prev.includes(deptId) ? prev.filter((id) => id !== deptId) : [...prev, deptId];
-      // Remove events from deselected departments
-      if (!next.includes(deptId)) {
-        const cat = EVENT_CATEGORIES.find((c) => c.id === deptId);
-        if (cat) {
-          const eventIds = cat.events.map((e) => e.id);
-          setSelectedEvents((prev) => prev.filter((id) => !eventIds.includes(id)));
-        }
-      }
-      return next;
-    });
+  const genderValue = watch("gender");
+
+  // Derive departments from selected events
+  const getDepartmentsFromEvents = (events: string[]) => {
+    const depts = new Set<string>();
+    for (const eventId of events) {
+      const cat = EVENT_CATEGORIES.find((c) => c.events.some((e) => e.id === eventId));
+      if (cat) depts.add(cat.id);
+    }
+    return Array.from(depts);
   };
 
   const toggleEvent = (eventId: string) => {
@@ -69,39 +69,22 @@ const RegistrationForm = forwardRef<HTMLDivElement>((_, ref) => {
     }
 
     setIsSubmitting(true);
+    const departmentsSelected = getDepartmentsFromEvents(selectedEvents);
 
     try {
-      // Check for duplicate email
-      const { data: existing } = await supabase
-        .from("registrations")
-        .select("email")
-        .eq("email", data.email.toLowerCase())
-        .maybeSingle();
-
-      if (existing) {
-        toast({
-          title: "Already Registered",
-          description: "This email is already registered. Please use a different email.",
-          variant: "destructive",
-        });
-        setIsSubmitting(false);
-        return;
-      }
-
       const { error } = await supabase
         .from("registrations")
         .insert({
           name: data.name,
-          gender: "Not specified",
+          gender: data.gender,
           email: data.email.toLowerCase(),
           phone: data.phone,
-          college: data.college,
-          department: selectedDepartments.join(", "),
-          departments_selected: selectedDepartments,
+          college_school: data.college_school,
+          department: departmentsSelected.join(", "),
+          departments_selected: departmentsSelected,
           selected_events: selectedEvents,
           total_events: selectedEvents.length,
-          payment_status: "registered",
-          amount: 0,
+          status: "Registered",
           reg_id: "",
         } as any);
 
@@ -119,12 +102,10 @@ const RegistrationForm = forwardRef<HTMLDivElement>((_, ref) => {
         return;
       }
 
-      // Show success popup
       setShowSuccess(true);
       setTimeout(() => {
         setShowSuccess(false);
         reset();
-        setSelectedDepartments([]);
         setSelectedEvents([]);
       }, 3000);
     } catch (err: any) {
@@ -164,7 +145,7 @@ const RegistrationForm = forwardRef<HTMLDivElement>((_, ref) => {
                 <CheckCircle className="h-20 w-20 text-green-500 mx-auto mb-4" />
               </motion.div>
               <h2 className="font-display text-2xl font-bold text-foreground mb-2">
-                Registration Successful.
+                Registration Successful!
               </h2>
               <p className="text-muted-foreground text-sm">Auto-closing in 3 seconds...</p>
             </motion.div>
@@ -188,7 +169,7 @@ const RegistrationForm = forwardRef<HTMLDivElement>((_, ref) => {
         </motion.div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
-          {/* Step 1: Personal Details */}
+          {/* Personal Details */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -196,7 +177,7 @@ const RegistrationForm = forwardRef<HTMLDivElement>((_, ref) => {
             className="card-elevated p-6 md:p-8"
           >
             <h3 className="font-display text-xl font-semibold text-foreground mb-6">
-             Personal Details
+              Personal Details
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-2">
@@ -205,6 +186,22 @@ const RegistrationForm = forwardRef<HTMLDivElement>((_, ref) => {
                 </Label>
                 <Input id="name" placeholder="Your full name" {...register("name")} />
                 {errors.name && <p className="text-destructive text-xs">{errors.name.message}</p>}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="gender" className="flex items-center gap-2 text-foreground">
+                  <User className="h-4 w-4 text-primary" /> Gender *
+                </Label>
+                <Select value={genderValue} onValueChange={(val) => setValue("gender", val as "Male" | "Female", { shouldValidate: true })}>
+                  <SelectTrigger id="gender">
+                    <SelectValue placeholder="Select Gender" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Male">Male</SelectItem>
+                    <SelectItem value="Female">Female</SelectItem>
+                  </SelectContent>
+                </Select>
+                {errors.gender && <p className="text-destructive text-xs">{errors.gender.message}</p>}
               </div>
 
               <div className="space-y-2">
@@ -223,48 +220,29 @@ const RegistrationForm = forwardRef<HTMLDivElement>((_, ref) => {
                 {errors.phone && <p className="text-destructive text-xs">{errors.phone.message}</p>}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="college" className="flex items-center gap-2 text-foreground">
-                  <GraduationCap className="h-4 w-4 text-primary" /> College/Institution *
+              <div className="space-y-2 md:col-span-2">
+                <Label htmlFor="college_school" className="flex items-center gap-2 text-foreground">
+                  <GraduationCap className="h-4 w-4 text-primary" /> College/School Name *
                 </Label>
-                <Input id="college" placeholder="Your college name" {...register("college")} />
-                {errors.college && <p className="text-destructive text-xs">{errors.college.message}</p>}
+                <Input id="college_school" placeholder="Your college or school name" {...register("college_school")} />
+                {errors.college_school && <p className="text-destructive text-xs">{errors.college_school.message}</p>}
               </div>
             </div>
           </motion.div>
 
-          {/* Step 2: Department Selection */}
+          {/* Event Selection - All events shown as cards */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="card-elevated p-6 md:p-8"
           >
-            <h3 className="font-display text-xl font-semibold text-foreground mb-6">
-              Select Departments
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-              {DEPARTMENTS.map((dept) => (
-                <label
-                  key={dept.id}
-                  className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-muted/50 cursor-pointer transition-colors"
-                >
-                  <Checkbox
-                    checked={selectedDepartments.includes(dept.id)}
-                    onCheckedChange={() => toggleDepartment(dept.id)}
-                  />
-                  <span className="font-medium text-foreground text-sm">{dept.label}</span>
-                </label>
-              ))}
-            </div>
+            <EventSelection
+              selectedEvents={selectedEvents}
+              onToggle={toggleEvent}
+            />
           </motion.div>
 
-          {/* Step 3: Event Selection */}
-          <EventSelection
-            selectedEvents={selectedEvents}
-            selectedDepartments={selectedDepartments}
-            onToggle={toggleEvent}
-          />
           {eventError && (
             <p className="text-destructive text-sm text-center font-medium">{eventError}</p>
           )}
@@ -296,6 +274,9 @@ const RegistrationForm = forwardRef<HTMLDivElement>((_, ref) => {
                 "Register"
               )}
             </Button>
+            <p className="text-muted-foreground text-xs mt-4 font-body">
+              Registration will be completed only after payment is successfully received at the venue.
+            </p>
           </motion.div>
         </form>
       </div>

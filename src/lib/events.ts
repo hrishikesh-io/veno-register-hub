@@ -5,7 +5,7 @@ export interface TechEvent {
   name: string;
   description: string;
   day: 1 | 2;
-  type: string; // e.g. "Individual", "Group of 2", etc.
+  type: string;
 }
 
 export interface EventCategory {
@@ -21,12 +21,13 @@ export const DEPARTMENTS = [
   { id: "electronics", label: "Electronics Engineering" },
   { id: "civil", label: "Civil Engineering" },
   { id: "general_workshop", label: "General Workshop" },
+  { id: "fun_games", label: "Fun Games" },
 ] as const;
 
 export const EVENT_CATEGORIES: EventCategory[] = [
   {
     id: "computer",
-    name: "Computer Engineering Events",
+    name: "Computer Engineering",
     icon: Monitor,
     events: [
       { id: "fast_fingers", name: "Fast Fingers", description: "Typing Speed", day: 1, type: "Individual" },
@@ -38,7 +39,7 @@ export const EVENT_CATEGORIES: EventCategory[] = [
   },
   {
     id: "automobile",
-    name: "Automobile Engineering Events",
+    name: "Automobile Engineering",
     icon: Car,
     events: [
       { id: "auto_quiz", name: "Auto Quiz", description: "Automobile Knowledge Quiz", day: 1, type: "Group of 2" },
@@ -48,7 +49,7 @@ export const EVENT_CATEGORIES: EventCategory[] = [
   },
   {
     id: "electronics",
-    name: "Electronics Engineering Events",
+    name: "Electronics Engineering",
     icon: Zap,
     events: [
       { id: "circuit_debugging", name: "Circuit Debugging", description: "Find and fix circuit faults", day: 1, type: "Group of 4" },
@@ -58,7 +59,7 @@ export const EVENT_CATEGORIES: EventCategory[] = [
   },
   {
     id: "civil",
-    name: "Civil Engineering Events",
+    name: "Civil Engineering",
     icon: Building2,
     events: [
       { id: "one_day_seminar", name: "One Day Seminar", description: "Technical Knowledge Session", day: 1, type: "Individual" },
@@ -74,6 +75,16 @@ export const EVENT_CATEGORIES: EventCategory[] = [
     events: [
       { id: "lathe_craft", name: "Lathe Craft", description: "Lathe Machine Operation", day: 1, type: "Individual" },
       { id: "tool_master", name: "Tool Master", description: "Tool Memorizing Challenge", day: 1, type: "Individual" },
+    ],
+  },
+  {
+    id: "fun_games",
+    name: "Fun Games",
+    icon: Gamepad2,
+    events: [
+      { id: "spell_a_word", name: "Spell a Word", description: "Spelling Challenge", day: 1, type: "Individual" },
+      { id: "puzzle", name: "Puzzle", description: "Puzzle Solving Challenge", day: 1, type: "Individual" },
+      { id: "periodic_table", name: "Periodic Table", description: "Periodic Table Challenge", day: 2, type: "Individual" },
     ],
   },
 ];
