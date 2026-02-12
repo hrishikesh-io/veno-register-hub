@@ -97,7 +97,7 @@ const HeroSection = ({ onRegisterClick }: HeroSectionProps) => {
           {/* Centered Ven-O-vation logo image */}
           <div className="flex justify-center mb-6">
           <img
-           src={newveno}
+           src={newveno1}
              alt="Ven-O-vation"
               className="w-3/4 sm:w-2/3 md:w-1/2 lg:w-2/5 object-contain"
            />
