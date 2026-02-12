@@ -62,7 +62,7 @@ export const EVENT_CATEGORIES: EventCategory[] = [
     name: "Civil Engineering",
     icon: Building2,
     events: [
-      { id: "one_day_seminar", name: "One Day Seminar", description: "Technical Knowledge Session", day: 1, type: "Individual" },
+      { id: "one_day_seminar", name: "State Level One Day Seminar", description: "Built to Last: A Comprehensive talk on Quality construction and water proofing.", day: 1, type: "Individual" },
       { id: "cadd_master", name: "CADD Master", description: "Auto CAD Design Challenge", day: 1, type: "Individual" },
       { id: "civi_q", name: "Civi Q", description: "Civil Engineering Quiz", day: 2, type: "Group of 2" },
       { id: "benchmark_chase", name: "Benchmark Chase", description: "Treasure Hunt", day: 2, type: "Group of 3" },
