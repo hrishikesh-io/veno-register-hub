@@ -108,7 +108,7 @@ const HeroSection = ({ onRegisterClick }: HeroSectionProps) => {
             State Tech Fest 2026
           </h2>
           <p className="text-secondary font-display text-xl md:text-2xl font-bold mb-6">
-            19, 20 Feb 2026
+            19, 20 February
           </p>
         </motion.div>
 
