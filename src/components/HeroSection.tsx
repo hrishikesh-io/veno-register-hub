@@ -168,34 +168,49 @@ const HeroSection = ({ onRegisterClick }: HeroSectionProps) => {
   transition={{ duration: 0.8, delay: 0.8 }}
   className="flex flex-wrap justify-center gap-4 md:gap-6"
 >
-  <div className="animate-float rounded-2xl px-6 py-4 
-                  bg-gradient-to-br from-blue-500/20 to-purple-600/20 
-                  backdrop-blur-xl 
-                  border border-white/20 
-                  shadow-xl 
-                  hover:scale-105 hover:shadow-2xl 
-                  transition-all duration-300">
-    <div className="flex items-center gap-2 text-white">
-      <span className="font-display font-semibold">
+  {/* Individual Program Card */}
+  <div
+    className="
+      rounded-xl
+      px-6 py-4
+      bg-white/10
+      backdrop-blur-md
+      border border-white/20
+      shadow-lg
+      hover:shadow-xl
+      hover:-translate-y-1
+      transition-all duration-300 ease-in-out
+    "
+  >
+    <div className="flex items-center justify-center text-white">
+      <span className="font-display font-semibold text-base md:text-lg">
         ₹30 for Individual Program
       </span>
     </div>
   </div>
 
-  <div className="animate-float rounded-2xl px-6 py-4 
-                  bg-gradient-to-br from-blue-500/20 to-purple-600/20 
-                  backdrop-blur-xl 
-                  border border-white/20 
-                  shadow-xl 
-                  hover:scale-105 hover:shadow-2xl 
-                  transition-all duration-300">
-    <div className="flex items-center gap-2 text-white">
-      <span className="font-display font-semibold">
+  {/* Group Program Card */}
+  <div
+    className="
+      rounded-xl
+      px-6 py-4
+      bg-white/10
+      backdrop-blur-md
+      border border-white/20
+      shadow-lg
+      hover:shadow-xl
+      hover:-translate-y-1
+      transition-all duration-300 ease-in-out
+    "
+  >
+    <div className="flex items-center justify-center text-white">
+      <span className="font-display font-semibold text-base md:text-lg">
         ₹50 for Group Program
       </span>
     </div>
   </div>
 </motion.div>
+
 
 
       </div>
