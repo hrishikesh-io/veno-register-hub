@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Calendar } from "lucide-react";
 import { getEventPhase } from "@/lib/eventDates";
 import { Button } from "@/components/ui/button";
@@ -32,21 +32,31 @@ const useCountdown = () => {
   return timeLeft;
 };
 
-const FlipUnit = ({ value, label }: { value: number; label: string }) => (
-  <div className="flex flex-col items-center">
-    <div className="relative w-16 h-20 md:w-20 md:h-24 rounded-xl overflow-hidden bg-card/20 backdrop-blur-md border border-border/30">
-      <div className="absolute inset-0 flex items-center justify-center">
-        <span className="font-display text-3xl md:text-4xl font-bold text-primary-foreground">
-          {String(value).padStart(2, "0")}
-        </span>
+const FlipUnit = ({ value, label }: { value: number; label: string }) => {
+  const display = String(value).padStart(2, "0");
+  return (
+    <div className="flex flex-col items-center">
+      <div className="relative w-16 h-20 md:w-22 md:h-26 rounded-lg overflow-hidden bg-white border border-gray-200 shadow-md">
+        <AnimatePresence mode="popLayout">
+          <motion.span
+            key={display}
+            initial={{ y: -30, opacity: 0, rotateZ: -3 }}
+            animate={{ y: 0, opacity: 1, rotateZ: 0 }}
+            exit={{ y: 25, opacity: 0, rotateZ: 3 }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], type: "spring", bounce: 0.25 }}
+            className="absolute inset-0 flex items-center justify-center font-display text-3xl md:text-4xl font-bold text-gray-800"
+          >
+            {display}
+          </motion.span>
+        </AnimatePresence>
+        <div className="absolute inset-x-0 top-1/2 h-px bg-gray-100" />
       </div>
-      <div className="absolute inset-x-0 top-1/2 h-px bg-primary-foreground/10" />
+      <span className="text-primary-foreground/70 text-[10px] md:text-xs font-body mt-2 uppercase tracking-widest">
+        {label}
+      </span>
     </div>
-    <span className="text-primary-foreground/60 text-[10px] md:text-xs font-body mt-2 uppercase tracking-widest">
-      {label}
-    </span>
-  </div>
-);
+  );
+};
 
 const HeroSection = ({ onRegisterClick }: HeroSectionProps) => {
   const countdown = useCountdown();
@@ -138,18 +148,28 @@ const HeroSection = ({ onRegisterClick }: HeroSectionProps) => {
           transition={{ duration: 0.6, delay: 0.4 }}
           className="mb-10"
         >
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Calendar className="h-5 w-5 text-secondary" />
-            <span className="text-primary-foreground/70 font-body text-sm uppercase tracking-widest">
-              {phase === "all_open" ? "Event starts in" : phase === "day2_only" ? "Day 2 in progress" : "Event has ended"}
-            </span>
-          </div>
-          {phase === "all_open" && (
-            <div className="flex justify-center gap-3 md:gap-5">
-              <FlipUnit value={countdown.days} label="Days" />
-              <FlipUnit value={countdown.hours} label="Hours" />
-              <FlipUnit value={countdown.minutes} label="Minutes" />
-              <FlipUnit value={countdown.seconds} label="Seconds" />
+          {phase === "all_open" ? (
+            <>
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <Calendar className="h-5 w-5 text-secondary" />
+                <span className="text-primary-foreground/70 font-body text-sm uppercase tracking-widest">
+                  Event starts in
+                </span>
+              </div>
+              <div className="flex justify-center gap-3 md:gap-5">
+                <FlipUnit value={countdown.days} label="Days" />
+                <FlipUnit value={countdown.hours} label="Hours" />
+                <FlipUnit value={countdown.minutes} label="Minutes" />
+                <FlipUnit value={countdown.seconds} label="Seconds" />
+              </div>
+            </>
+          ) : (
+            <div className="flex justify-center">
+              <div className="bg-white border border-gray-200 shadow-md rounded-lg px-8 py-5">
+                <span className="font-display text-lg md:text-xl font-bold text-gray-800 uppercase tracking-wider">
+                  {phase === "day2_only" ? "Event Started" : "Event Has Ended"}
+                </span>
+              </div>
             </div>
           )}
         </motion.div>
