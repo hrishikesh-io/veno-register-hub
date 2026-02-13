@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ChevronDown, Calendar } from "lucide-react";
+import { getEventPhase } from "@/lib/eventDates";
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/logo.png";
 import newlogo from "@/assets/newlogo.png";
@@ -49,6 +50,12 @@ const FlipUnit = ({ value, label }: { value: number; label: string }) => (
 
 const HeroSection = ({ onRegisterClick }: HeroSectionProps) => {
   const countdown = useCountdown();
+  const [phase, setPhase] = useState(getEventPhase());
+
+  useEffect(() => {
+    const id = setInterval(() => setPhase(getEventPhase()), 1000);
+    return () => clearInterval(id);
+  }, []);
 
   return (
     <section className="hero-bg min-h-screen flex items-center justify-center relative">
@@ -134,15 +141,17 @@ const HeroSection = ({ onRegisterClick }: HeroSectionProps) => {
           <div className="flex items-center justify-center gap-2 mb-4">
             <Calendar className="h-5 w-5 text-secondary" />
             <span className="text-primary-foreground/70 font-body text-sm uppercase tracking-widest">
-              Event starts in
+              {phase === "all_open" ? "Event starts in" : phase === "day2_only" ? "Day 2 in progress" : "Event has ended"}
             </span>
           </div>
-          <div className="flex justify-center gap-3 md:gap-5">
-            <FlipUnit value={countdown.days} label="Days" />
-            <FlipUnit value={countdown.hours} label="Hours" />
-            <FlipUnit value={countdown.minutes} label="Minutes" />
-            <FlipUnit value={countdown.seconds} label="Seconds" />
-          </div>
+          {phase === "all_open" && (
+            <div className="flex justify-center gap-3 md:gap-5">
+              <FlipUnit value={countdown.days} label="Days" />
+              <FlipUnit value={countdown.hours} label="Hours" />
+              <FlipUnit value={countdown.minutes} label="Minutes" />
+              <FlipUnit value={countdown.seconds} label="Seconds" />
+            </div>
+          )}
         </motion.div>
 
         <motion.div
