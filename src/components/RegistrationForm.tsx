@@ -1,9 +1,9 @@
-import { useState, forwardRef } from "react";
+import { useState, useEffect, forwardRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion, AnimatePresence } from "framer-motion";
-import { User, Mail, Phone, GraduationCap, Loader2, CheckCircle } from "lucide-react";
+import { User, Mail, Phone, GraduationCap, Loader2, CheckCircle, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import EventSelection from "./EventSelection";
 import { supabase } from "@/integrations/supabase/client";
 import { EVENT_CATEGORIES } from "@/lib/events";
+import { getEventPhase, isEventDayAllowed, type EventPhase } from "@/lib/eventDates";
 
 const formSchema = z.object({
   name: z.string().trim().min(3, "Name must be at least 3 characters").max(100),
@@ -30,7 +31,25 @@ const RegistrationForm = forwardRef<HTMLDivElement>((_, ref) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [eventError, setEventError] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
+  const [phase, setPhase] = useState<EventPhase>(getEventPhase());
   const { toast } = useToast();
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      const p = getEventPhase();
+      setPhase(p);
+      // Clear selected Day 1 events if phase changed
+      if (p === "day2_only") {
+        setSelectedEvents((prev) => prev.filter((eid) => {
+          const evt = EVENT_CATEGORIES.flatMap(c => c.events).find(e => e.id === eid);
+          return evt ? isEventDayAllowed(evt.day) : false;
+        }));
+      } else if (p === "all_closed") {
+        setSelectedEvents([]);
+      }
+    }, 30000);
+    return () => clearInterval(id);
+  }, []);
 
   const {
     register,
@@ -63,12 +82,34 @@ const RegistrationForm = forwardRef<HTMLDivElement>((_, ref) => {
   };
 
   const onSubmit = async (data: FormValues) => {
+    // Client-side phase check
+    const currentPhase = getEventPhase();
+    if (currentPhase === "all_closed") {
+      toast({ title: "Registration Closed", description: "All registrations are closed.", variant: "destructive" });
+      return;
+    }
+
     if (selectedEvents.length === 0) {
       setEventError("Please select at least one event");
       return;
     }
 
     setIsSubmitting(true);
+
+    // Backend validation
+    try {
+      const { data: validation, error: valError } = await supabase.functions.invoke("validate-registration", {
+        body: { selected_events: selectedEvents },
+      });
+      if (valError || !validation?.valid) {
+        toast({ title: "Validation Failed", description: validation?.error || "Some selected events are no longer available.", variant: "destructive" });
+        setIsSubmitting(false);
+        return;
+      }
+    } catch {
+      // If validation endpoint fails, continue with client-side check only
+    }
+
     const departmentsSelected = getDepartmentsFromEvents(selectedEvents);
 
     try {
@@ -167,6 +208,22 @@ const RegistrationForm = forwardRef<HTMLDivElement>((_, ref) => {
             Fill in your details and choose your events
           </p>
         </motion.div>
+
+        {phase === "all_closed" ? (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="card-elevated p-10 text-center"
+          >
+            <AlertTriangle className="h-16 w-16 text-destructive mx-auto mb-4" />
+            <h3 className="font-display text-2xl font-bold text-foreground mb-2">
+              All Registrations Closed
+            </h3>
+            <p className="text-muted-foreground font-body">
+              See You at the Event!
+            </p>
+          </motion.div>
+        ) : (
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
           {/* Personal Details */}
@@ -279,6 +336,7 @@ const RegistrationForm = forwardRef<HTMLDivElement>((_, ref) => {
             </p>
           </motion.div>
         </form>
+        )}
       </div>
     </section>
   );
