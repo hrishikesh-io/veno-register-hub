@@ -195,126 +195,91 @@
   100% { transform: translateY(-10vh) scale(1); opacity: 0; }
 }
 
-/* ── Rolling Drum Odometer ── */
-.drum-card {
-  position: relative;
+/* ── 3D Cube Countdown ── */
+.cube-card {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  gap: 3px;
+  padding: 0.4rem;
   border-radius: 0.5rem;
-  background: hsl(0 0% 97%);
+  background: linear-gradient(145deg, hsl(0 0% 96%), hsl(0 0% 92%));
   border: 1px solid hsl(0 0% 80%);
   box-shadow:
-    0 6px 20px -4px rgba(0,0,0,0.25),
-    inset 0 1px 0 rgba(255,255,255,0.6);
-  padding: 0.25rem;
-  overflow: hidden;
+    0 8px 24px -6px rgba(0,0,0,0.3),
+    0 2px 6px rgba(0,0,0,0.1),
+    inset 0 1px 0 rgba(255,255,255,0.7);
 }
 
-.drum-digits {
-  display: flex;
-  gap: 2px;
-}
-
-.drum-digit {
-  width: 2rem;
-  height: 3.5rem;
-  position: relative;
+.cube-digit-wrapper {
+  width: 2.1rem;
+  height: 3.2rem;
+  perspective: 200px;
   overflow: hidden;
-  background: linear-gradient(
-    180deg,
-    hsl(0 0% 90%) 0%,
-    hsl(0 0% 97%) 15%,
-    hsl(0 0% 98%) 50%,
-    hsl(0 0% 97%) 85%,
-    hsl(0 0% 90%) 100%
-  );
   border-radius: 0.25rem;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.08), inset 0 -2px 4px rgba(0,0,0,0.06);
+  background: hsl(0 0% 98%);
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.1), inset 0 -1px 3px rgba(0,0,0,0.05);
 }
 
 @media (min-width: 768px) {
-  .drum-digit {
-    width: 2.5rem;
-    height: 4.25rem;
+  .cube-digit-wrapper {
+    width: 2.6rem;
+    height: 4rem;
   }
 }
 
-.drum-window {
+.cube-digit {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+}
+
+.cube-face {
   position: absolute;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  backface-visibility: hidden;
 }
 
-.drum-number {
-  position: absolute;
+.cube-face span {
   font-family: var(--font-display);
   font-size: 1.75rem;
   font-weight: 700;
   color: hsl(0 0% 12%);
   line-height: 1;
-  will-change: transform, opacity;
 }
 
 @media (min-width: 768px) {
-  .drum-number {
+  .cube-face span {
     font-size: 2.25rem;
   }
 }
 
-/* Groove lines for mechanical look */
-.drum-groove {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: hsl(0 0% 75%);
-  z-index: 2;
-  pointer-events: none;
-}
-.drum-groove-top {
-  top: 20%;
-  opacity: 0.4;
-}
-.drum-groove-bottom {
-  bottom: 20%;
-  opacity: 0.4;
+.cube-front {
+  transform: rotateX(0deg);
+  background: linear-gradient(180deg, hsl(0 0% 99%) 0%, hsl(0 0% 95%) 100%);
 }
 
-/* Rolling animations */
-@keyframes drumRollOut {
-  0% {
-    transform: translateY(0);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(100%);
-    opacity: 0;
-  }
+.cube-bottom {
+  transform: rotateX(90deg) translateZ(1.6rem);
+  background: linear-gradient(180deg, hsl(0 0% 99%) 0%, hsl(0 0% 95%) 100%);
 }
-@keyframes drumRollIn {
-  0% {
-    transform: translateY(-100%);
-    opacity: 0;
-  }
-  60% {
-    transform: translateY(4%);
-    opacity: 1;
-  }
-  80% {
-    transform: translateY(-2%);
-  }
-  100% {
-    transform: translateY(0);
-    opacity: 1;
+
+@media (min-width: 768px) {
+  .cube-bottom {
+    transform: rotateX(90deg) translateZ(2rem);
   }
 }
 
-.drum-roll-out {
-  animation: drumRollOut 0.45s cubic-bezier(0.55, 0, 1, 0.45) forwards;
+.cube-spin {
+  animation: cubeTumble 0.55s cubic-bezier(0.4, 0, 0.2, 1.1) forwards;
 }
-.drum-roll-in {
-  animation: drumRollIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+
+@keyframes cubeTumble {
+  0% { transform: rotateX(0deg); }
+  45% { transform: rotateX(-78deg); }
+  70% { transform: rotateX(-93deg); }
+  85% { transform: rotateX(-88deg); }
+  100% { transform: rotateX(-90deg); }
 }
