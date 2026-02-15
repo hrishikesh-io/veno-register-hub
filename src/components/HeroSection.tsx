@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Calendar } from "lucide-react";
 import { getEventPhase } from "@/lib/eventDates";
 import { Button } from "@/components/ui/button";
@@ -34,47 +34,22 @@ const useCountdown = () => {
 
 const FlipUnit = ({ value, label }: { value: number; label: string }) => {
   const display = String(value).padStart(2, "0");
-  const [prev, setPrev] = useState(display);
-  const [flipping, setFlipping] = useState(false);
-
-  useEffect(() => {
-    if (display !== prev) {
-      setFlipping(true);
-      const timer = setTimeout(() => {
-        setPrev(display);
-        setFlipping(false);
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [display, prev]);
-
   return (
     <div className="flex flex-col items-center">
-      <div className="flip-clock-card">
-        {/* Static top half — shows NEW number */}
-        <div className="flip-half flip-top">
-          <span>{display}</span>
-        </div>
-        {/* Static bottom half — shows OLD number until flip ends */}
-        <div className="flip-half flip-bottom">
-          <span>{flipping ? prev : display}</span>
-        </div>
-        {/* Center hinge line */}
-        <div className="flip-hinge" />
-
-        {/* Animated flipping panels */}
-        {flipping && (
-          <>
-            {/* Top flap flips down — shows OLD number */}
-            <div className="flip-panel flip-panel-top flip-down-anim">
-              <span>{prev}</span>
-            </div>
-            {/* Bottom flap flips up — shows NEW number */}
-            <div className="flip-panel flip-panel-bottom flip-up-anim">
-              <span>{display}</span>
-            </div>
-          </>
-        )}
+      <div className="relative w-16 h-20 md:w-22 md:h-26 rounded-lg overflow-hidden bg-white border border-gray-200 shadow-md">
+        <AnimatePresence mode="popLayout">
+          <motion.span
+            key={display}
+            initial={{ y: -30, opacity: 0, rotateZ: -3 }}
+            animate={{ y: 0, opacity: 1, rotateZ: 0 }}
+            exit={{ y: 25, opacity: 0, rotateZ: 3 }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], type: "spring", bounce: 0.25 }}
+            className="absolute inset-0 flex items-center justify-center font-display text-3xl md:text-4xl font-bold text-gray-800"
+          >
+            {display}
+          </motion.span>
+        </AnimatePresence>
+        <div className="absolute inset-x-0 top-1/2 h-px bg-gray-100" />
       </div>
       <span className="text-primary-foreground/70 text-[10px] md:text-xs font-body mt-2 uppercase tracking-widest">
         {label}
@@ -190,8 +165,8 @@ const HeroSection = ({ onRegisterClick }: HeroSectionProps) => {
             </>
           ) : (
             <div className="flex justify-center">
-              <div className="flip-clock-card flex items-center justify-center" style={{ width: 'auto', height: 'auto', padding: '1.25rem 2rem', boxShadow: '0 6px 18px -4px rgba(0,0,0,0.25)', borderRadius: '0.375rem', background: 'hsl(0 0% 96%)', border: '1px solid hsl(0 0% 82%)' }}>
-                <span className="font-display text-lg md:text-xl font-bold text-foreground uppercase tracking-wider">
+              <div className="bg-white border border-gray-200 shadow-md rounded-lg px-8 py-5">
+                <span className="font-display text-lg md:text-xl font-bold text-gray-800 uppercase tracking-wider">
                   {phase === "day2_only" ? "Event Started" : "Event Has Ended"}
                 </span>
               </div>
