@@ -32,32 +32,37 @@ const useCountdown = () => {
   return timeLeft;
 };
 
-const CubeDigit = ({ digit }: { digit: string }) => {
+const RollingDigit = ({ digit }: { digit: string }) => {
   const [prev, setPrev] = useState(digit);
-  const [spinning, setSpinning] = useState(false);
+  const [rolling, setRolling] = useState(false);
 
   useEffect(() => {
     if (digit !== prev) {
-      setSpinning(true);
+      setRolling(true);
       const timer = setTimeout(() => {
         setPrev(digit);
-        setSpinning(false);
-      }, 600);
+        setRolling(false);
+      }, 500);
       return () => clearTimeout(timer);
     }
   }, [digit, prev]);
 
   return (
-    <div className="cube-digit-wrapper">
-      <div className={`cube-digit ${spinning ? "cube-spin" : ""}`}>
-        {/* Front face — current */}
-        <div className="cube-face cube-front">
-          <span>{spinning ? prev : digit}</span>
-        </div>
-        {/* Bottom face — next number (rotates up into view) */}
-        <div className="cube-face cube-bottom">
-          <span>{digit}</span>
-        </div>
+    <div className="drum-digit">
+      <div className="drum-window">
+        {/* Old number rolling out */}
+        <span
+          className={`drum-number ${rolling ? "drum-roll-out" : ""}`}
+          key={`old-${prev}`}
+        >
+          {rolling ? prev : digit}
+        </span>
+        {/* New number rolling in */}
+        {rolling && (
+          <span className="drum-number drum-roll-in" key={`new-${digit}`}>
+            {digit}
+          </span>
+        )}
       </div>
     </div>
   );
@@ -68,9 +73,14 @@ const FlipUnit = ({ value, label }: { value: number; label: string }) => {
 
   return (
     <div className="flex flex-col items-center">
-      <div className="cube-card">
-        <CubeDigit digit={display[0]} />
-        <CubeDigit digit={display[1]} />
+      <div className="drum-card">
+        <div className="drum-digits">
+          <RollingDigit digit={display[0]} />
+          <RollingDigit digit={display[1]} />
+        </div>
+        {/* Center groove lines */}
+        <div className="drum-groove drum-groove-top" />
+        <div className="drum-groove drum-groove-bottom" />
       </div>
       <span className="text-primary-foreground/70 text-[10px] md:text-xs font-body mt-2 uppercase tracking-widest">
         {label}
@@ -186,7 +196,7 @@ const HeroSection = ({ onRegisterClick }: HeroSectionProps) => {
             </>
           ) : (
             <div className="flex justify-center">
-              <div className="cube-card" style={{ padding: '1.25rem 2rem' }}>
+              <div className="flip-clock-card flex items-center justify-center" style={{ width: 'auto', height: 'auto', padding: '1.25rem 2rem', boxShadow: '0 6px 18px -4px rgba(0,0,0,0.25)', borderRadius: '0.375rem', background: 'hsl(0 0% 96%)', border: '1px solid hsl(0 0% 82%)' }}>
                 <span className="font-display text-lg md:text-xl font-bold text-foreground uppercase tracking-wider">
                   {phase === "day2_only" ? "Event Started" : "Event Has Ended"}
                 </span>
