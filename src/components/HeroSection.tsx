@@ -32,55 +32,49 @@ const useCountdown = () => {
   return timeLeft;
 };
 
-const RollingDigit = ({ digit }: { digit: string }) => {
-  const [prev, setPrev] = useState(digit);
-  const [rolling, setRolling] = useState(false);
+const FlipUnit = ({ value, label }: { value: number; label: string }) => {
+  const display = String(value).padStart(2, "0");
+  const [prev, setPrev] = useState(display);
+  const [flipping, setFlipping] = useState(false);
 
   useEffect(() => {
-    if (digit !== prev) {
-      setRolling(true);
+    if (display !== prev) {
+      setFlipping(true);
       const timer = setTimeout(() => {
-        setPrev(digit);
-        setRolling(false);
+        setPrev(display);
+        setFlipping(false);
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [digit, prev]);
-
-  return (
-    <div className="drum-digit">
-      <div className="drum-window">
-        {/* Old number rolling out */}
-        <span
-          className={`drum-number ${rolling ? "drum-roll-out" : ""}`}
-          key={`old-${prev}`}
-        >
-          {rolling ? prev : digit}
-        </span>
-        {/* New number rolling in */}
-        {rolling && (
-          <span className="drum-number drum-roll-in" key={`new-${digit}`}>
-            {digit}
-          </span>
-        )}
-      </div>
-    </div>
-  );
-};
-
-const FlipUnit = ({ value, label }: { value: number; label: string }) => {
-  const display = String(value).padStart(2, "0");
+  }, [display, prev]);
 
   return (
     <div className="flex flex-col items-center">
-      <div className="drum-card">
-        <div className="drum-digits">
-          <RollingDigit digit={display[0]} />
-          <RollingDigit digit={display[1]} />
+      <div className="flip-clock-card">
+        {/* Static top half — shows NEW number */}
+        <div className="flip-half flip-top">
+          <span>{display}</span>
         </div>
-        {/* Center groove lines */}
-        <div className="drum-groove drum-groove-top" />
-        <div className="drum-groove drum-groove-bottom" />
+        {/* Static bottom half — shows OLD number until flip ends */}
+        <div className="flip-half flip-bottom">
+          <span>{flipping ? prev : display}</span>
+        </div>
+        {/* Center hinge line */}
+        <div className="flip-hinge" />
+
+        {/* Animated flipping panels */}
+        {flipping && (
+          <>
+            {/* Top flap flips down — shows OLD number */}
+            <div className="flip-panel flip-panel-top flip-down-anim">
+              <span>{prev}</span>
+            </div>
+            {/* Bottom flap flips up — shows NEW number */}
+            <div className="flip-panel flip-panel-bottom flip-up-anim">
+              <span>{display}</span>
+            </div>
+          </>
+        )}
       </div>
       <span className="text-primary-foreground/70 text-[10px] md:text-xs font-body mt-2 uppercase tracking-widest">
         {label}
