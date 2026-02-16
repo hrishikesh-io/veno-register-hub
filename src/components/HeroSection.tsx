@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, Calendar } from "lucide-react";
+import { ChevronDown, Calendar, MessageCircle } from "lucide-react";
 import { getEventPhase } from "@/lib/eventDates";
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/logo.png";
@@ -190,50 +190,21 @@ const HeroSection = ({ onRegisterClick }: HeroSectionProps) => {
           </Button>
         </motion.div>
 
-
-
-
-
-
-
-        import { MessageCircle } from "lucide-react";
-
-        const WHATSAPP_CHANNEL = "https://whatsapp.com/channel/YOUR_CHANNEL_LINK";
-
-        <Button
-          size="lg"
-          onClick={() => window.open(WHATSAPP_CHANNEL, "_blank")}
-          className="
-            text-white
-            text-lg
-            px-10
-            py-6
-            rounded-full
-            font-display
-            font-semibold
-            bg-[#25D366]
-            hover:bg-[#1ebe5d]
-            transition-all
-            duration-300
-            shadow-[0_0_20px_rgba(37,211,102,0.6)]
-            hover:shadow-[0_0_35px_rgba(37,211,102,1)]
-            hover:scale-105
-          "
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, delay: 0.7 }}
+          className="mb-12"
         >
-          <MessageCircle className="mr-2 h-5 w-5" />
-          Join WhatsApp Channel
-        </Button>
-
-
-
-
-
-
-
-
-
-
-
+          <Button
+            size="lg"
+            onClick={() => window.open("https://whatsapp.com/channel/YOUR_CHANNEL_LINK", "_blank")}
+            className="text-white text-lg px-10 py-6 rounded-full font-display font-semibold bg-[#25D366] hover:bg-[#1ebe5d] transition-all duration-300 shadow-[0_0_20px_rgba(37,211,102,0.6)] hover:shadow-[0_0_35px_rgba(37,211,102,1)] hover:scale-105"
+          >
+            <MessageCircle className="mr-2 h-5 w-5" />
+            Join WhatsApp Channel
+          </Button>
+        </motion.div>
 
 
         {/* Floating Stats */}
