@@ -198,7 +198,7 @@ const HeroSection = ({ onRegisterClick }: HeroSectionProps) => {
         >
           <Button
             size="lg"
-            onClick={() => window.open("https://whatsapp.com/channel/YOUR_CHANNEL_LINK", "_blank")}
+            onClick={() => window.open("https://whatsapp.com/channel/0029VbBq03lDDmFNWX0c3l03", "_blank")}
             className="text-white text-lg px-10 py-6 rounded-full font-display font-semibold bg-[#25D366] hover:bg-[#1ebe5d] transition-all duration-300 shadow-[0_0_20px_rgba(37,211,102,0.6)] hover:shadow-[0_0_35px_rgba(37,211,102,1)] hover:scale-105"
           >
             <MessageCircle className="mr-2 h-5 w-5" />
