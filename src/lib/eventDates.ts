@@ -1,5 +1,5 @@
 // Event date boundaries (IST = UTC+5:30)
-export const DAY1_START = new Date("2026-02-19T10:00:00+05:30").getTime();
+export const DAY1_START = new Date("2026-02-18T00:00:00+05:30").getTime();
 export const DAY2_END = new Date("2026-02-20T10:00:00+05:30").getTime();
 
 export type EventPhase = "all_open" | "day2_only" | "all_closed";
