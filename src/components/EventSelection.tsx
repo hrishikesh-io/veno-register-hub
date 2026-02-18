@@ -11,8 +11,6 @@ interface EventSelectionProps {
   onToggle: (eventId: string) => void;
 }
 
-// Events whose registration has been manually closed
-const CLOSED_EVENTS = new Set(["tech_treasure_hunt"]);
 
 const EventSelection = ({ selectedEvents, onToggle }: EventSelectionProps) => {
   const [phase, setPhase] = useState<EventPhase>(getEventPhase());
@@ -104,7 +102,6 @@ const EventSelection = ({ selectedEvents, onToggle }: EventSelectionProps) => {
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 {category.events.map((event, evIdx) => {
                   const isSelected = selectedEvents.includes(event.id);
-                  const isClosed = CLOSED_EVENTS.has(event.id);
                   return (
                     <motion.label
                       key={event.id}
@@ -112,39 +109,27 @@ const EventSelection = ({ selectedEvents, onToggle }: EventSelectionProps) => {
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true }}
                       transition={{ delay: catIdx * 0.1 + evIdx * 0.05, duration: 0.4 }}
-                      whileHover={isClosed ? {} : { y: -4, boxShadow: "0 8px 30px -10px hsl(var(--primary) / 0.3)" }}
-                      className={`rounded-xl border p-4 transition-colors ${
-                        isClosed
-                          ? "opacity-60 cursor-not-allowed border-border bg-muted/30"
-                          : isSelected
-                            ? "cursor-pointer border-primary bg-primary/5"
-                            : "cursor-pointer border-border bg-card hover:bg-muted/50"
+                      whileHover={{ y: -4, boxShadow: "0 8px 30px -10px hsl(var(--primary) / 0.3)" }}
+                      className={`cursor-pointer rounded-xl border p-4 transition-colors ${
+                        isSelected
+                          ? "border-primary bg-primary/5"
+                          : "border-border bg-card hover:bg-muted/50"
                       }`}
                     >
                       <div className="flex items-start gap-3">
-                        {isClosed ? (
-                          <AlertTriangle className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
-                        ) : (
-                          <Checkbox
-                            checked={isSelected}
-                            onCheckedChange={() => onToggle(event.id)}
-                            className="mt-0.5"
-                          />
-                        )}
+                        <Checkbox
+                          checked={isSelected}
+                          onCheckedChange={() => onToggle(event.id)}
+                          className="mt-0.5"
+                        />
                         <div className="flex-1">
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="font-medium text-foreground text-sm">
                               {event.name}
                             </span>
-                            {isClosed ? (
-                              <Badge variant="destructive" className="text-[10px] px-1.5 py-0">
-                                Registrations Closed
-                              </Badge>
-                            ) : (
-                              <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-                                {event.type}
-                              </Badge>
-                            )}
+                            <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                              {event.type}
+                            </Badge>
                           </div>
                           <p className="text-muted-foreground text-xs mt-1">
                             {event.description}

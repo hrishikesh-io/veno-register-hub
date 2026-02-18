@@ -32,7 +32,7 @@ export const EVENT_CATEGORIES: EventCategory[] = [
     events: [
       { id: "fast_fingers", name: "Fast Fingers", description: "Typing Speed", day: 1, type: "Individual" },
       { id: "page_masters", name: "Page Masters", description: "Poster Making", day: 1, type: "Individual" },
-      { id: "tech_treasure_hunt", name: "Tech Treasure Hunt", description: "Clue-Based Search Game", day: 2, type: "Group of 4" },
+      
       { id: "idea_pitching", name: "Idea Pitching", description: "Innovation Presentation Round", day: 2, type: "Individual" },
       { id: "brain_quest", name: "Brain Quest", description: "Code Debugging", day: 2, type: "Individual" },
     ],
