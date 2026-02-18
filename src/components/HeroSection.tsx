@@ -148,12 +148,30 @@ const HeroSection = ({ onRegisterClick }: HeroSectionProps) => {
           transition={{ duration: 0.6, delay: 0.4 }}
           className="mb-10"
         >
-          <div className="flex justify-center gap-3 md:gap-5">
-            <FlipUnit value={countdown.days} label="Days" />
-            <FlipUnit value={countdown.hours} label="Hours" />
-            <FlipUnit value={countdown.minutes} label="Minutes" />
-            <FlipUnit value={countdown.seconds} label="Seconds" />
-          </div>
+          {phase === "all_open" ? (
+            <>
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <Calendar className="h-5 w-5 text-secondary" />
+                <span className="text-primary-foreground/70 font-body text-sm uppercase tracking-widest">
+                  Event starts in
+                </span>
+              </div>
+              <div className="flex justify-center gap-3 md:gap-5">
+                <FlipUnit value={countdown.days} label="Days" />
+                <FlipUnit value={countdown.hours} label="Hours" />
+                <FlipUnit value={countdown.minutes} label="Minutes" />
+                <FlipUnit value={countdown.seconds} label="Seconds" />
+              </div>
+            </>
+          ) : (
+            <div className="flex justify-center">
+              <div className="bg-white border border-gray-200 shadow-md rounded-lg px-8 py-5">
+                <span className="font-display text-lg md:text-xl font-bold text-gray-800 uppercase tracking-wider">
+                  {phase === "day2_only" ? "Event Started" : "Event Has Ended"}
+                </span>
+              </div>
+            </div>
+          )}
         </motion.div>
 
         <motion.div
