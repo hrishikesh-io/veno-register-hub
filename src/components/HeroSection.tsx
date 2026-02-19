@@ -66,7 +66,8 @@ const FlipUnit = ({ value, label }: { value: number; label: string }) => {
 const HeroSection = () => {
   const countdown = useCountdown();
 
-  // Change manually:
+  // SIMPLE STATUS CONTROL
+  // Change this manually if needed:
   // "countdown" | "started" | "ended"
   const eventStatus = "started";
 
@@ -75,6 +76,7 @@ const HeroSection = () => {
 
       <div className="container text-center px-4 py-20">
 
+        {/* Top Logo */}
         <div className="absolute top-4 left-4">
           <img src={logo} alt="Ven-O-vation" className="h-10 md:h-14 opacity-70" />
         </div>
@@ -133,7 +135,7 @@ const HeroSection = () => {
           {eventStatus === "started" && (
             <div className="flex justify-center">
               <div className="px-10 py-5 rounded-lg bg-white border border-gray-200 shadow-md">
-                <span className="text-xl md:text-2xl font-semibold text-blue-600 uppercase tracking-wide">
+                <span className="text-xl md:text-2xl font-semibold text-purple-600 uppercase tracking-wide">
                   Event Started
                 </span>
               </div>
@@ -143,7 +145,7 @@ const HeroSection = () => {
           {eventStatus === "ended" && (
             <div className="flex justify-center">
               <div className="px-10 py-5 rounded-lg bg-white border border-gray-200 shadow-md">
-                <span className="text-xl md:text-2xl font-semibold text-blue-600 uppercase tracking-wide">
+                <span className="text-xl md:text-2xl font-semibold text-purple-600 uppercase tracking-wide">
                   Event Has Ended
                 </span>
               </div>
