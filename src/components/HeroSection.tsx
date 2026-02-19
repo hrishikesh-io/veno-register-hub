@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Calendar, MessageCircle } from "lucide-react";
-import { getEventPhase } from "@/lib/eventDates";
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/logo.png";
 import newlogo from "@/assets/newlogo.png";
@@ -20,17 +19,18 @@ const useCountdown = () => {
   useEffect(() => {
     const tick = () => {
       const diff = Math.max(0, TARGET_DATE - Date.now());
+
       setTimeLeft({
-        days: Math.floor(diff / 86400000),
-        hours: Math.floor((diff % 86400000) / 3600000),
-        minutes: Math.floor((diff % 3600000) / 60000),
-        seconds: Math.floor((diff % 60000) / 1000),
+        days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((diff / (1000 * 60)) % 60),
+        seconds: Math.floor((diff / 1000) % 60),
       });
     };
 
     tick();
-    const id = setInterval(tick, 1000);
-    return () => clearInterval(id);
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
   }, []);
 
   return timeLeft;
@@ -41,22 +41,22 @@ const FlipUnit = ({ value, label }: { value: number; label: string }) => {
 
   return (
     <div className="flex flex-col items-center">
-      <div className="relative w-16 h-20 md:w-22 md:h-26 rounded-lg overflow-hidden bg-white border border-gray-200 shadow-md">
-        <AnimatePresence mode="popLayout">
+      <div className="relative w-16 h-20 md:w-20 md:h-24 rounded-lg overflow-hidden bg-white border border-gray-200 shadow-md">
+        <AnimatePresence mode="wait">
           <motion.span
             key={display}
-            initial={{ y: -30, opacity: 0 }}
+            initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 25, opacity: 0 }}
-            transition={{ duration: 0.4 }}
-            className="absolute inset-0 flex items-center justify-center font-display text-3xl md:text-4xl font-bold text-gray-800"
+            exit={{ y: 20, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="absolute inset-0 flex items-center justify-center text-3xl md:text-4xl font-bold text-gray-800"
           >
             {display}
           </motion.span>
         </AnimatePresence>
         <div className="absolute inset-x-0 top-1/2 h-px bg-gray-100" />
       </div>
-      <span className="text-primary-foreground/70 text-[10px] md:text-xs font-body mt-2 uppercase tracking-widest">
+      <span className="text-xs mt-2 uppercase tracking-widest text-white/70">
         {label}
       </span>
     </div>
@@ -65,30 +65,28 @@ const FlipUnit = ({ value, label }: { value: number; label: string }) => {
 
 const HeroSection = () => {
   const countdown = useCountdown();
-  const [phase, setPhase] = useState(getEventPhase());
 
-  useEffect(() => {
-    const id = setInterval(() => setPhase(getEventPhase()), 1000);
-    return () => clearInterval(id);
-  }, []);
+  // SIMPLE STATUS CONTROL
+  // Change this manually if needed:
+  // "countdown" | "started" | "ended"
+  const eventStatus = "started";
 
   return (
-    <section className="hero-bg min-h-screen flex items-center justify-center relative">
-      <div className="circuit-lines" />
+    <section className="min-h-screen flex items-center justify-center relative bg-gradient-to-br from-purple-900 via-purple-800 to-purple-700 text-white">
 
-      {/* Top Logo */}
-      <div className="absolute top-4 left-4 z-20">
-        <img src={logo} alt="Ven-O-vation" className="h-10 md:h-14 opacity-70" />
-      </div>
+      <div className="container text-center px-4 py-20">
 
-      <div className="container relative z-10 text-center px-4 py-20">
+        {/* Top Logo */}
+        <div className="absolute top-4 left-4">
+          <img src={logo} alt="Ven-O-vation" className="h-10 md:h-14 opacity-70" />
+        </div>
 
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <span className="text-primary-foreground/70 font-body text-sm md:text-base uppercase tracking-[0.3em]">
+          <span className="text-sm md:text-base uppercase tracking-[0.3em] opacity-70">
             MVGM GPC Vennikulam presents
           </span>
 
@@ -104,27 +102,23 @@ const HeroSection = () => {
             />
           </div>
 
-          <h2 className="font-display text-4xl md:text-6xl font-bold text-primary-foreground mb-2 opacity-80">
+          <h2 className="text-4xl md:text-6xl font-bold mb-2 opacity-90">
             State Level Tech Fest 2026
           </h2>
 
-          <p className="text-secondary font-display text-xl md:text-2xl font-bold mb-6">
+          <p className="text-xl md:text-2xl font-bold mb-6">
             19, 20 Feb
           </p>
         </motion.div>
 
-        {/* Countdown OR Status */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="mb-10"
-        >
-          {phase === "all_open" ? (
+        {/* Countdown or Status */}
+        <div className="mb-10">
+
+          {eventStatus === "countdown" && (
             <>
               <div className="flex items-center justify-center gap-2 mb-4">
-                <Calendar className="h-5 w-5 text-secondary" />
-                <span className="text-primary-foreground/70 text-sm uppercase tracking-widest">
+                <Calendar className="h-5 w-5" />
+                <span className="text-sm uppercase tracking-widest opacity-70">
                   Event starts in
                 </span>
               </div>
@@ -136,32 +130,32 @@ const HeroSection = () => {
                 <FlipUnit value={countdown.seconds} label="Seconds" />
               </div>
             </>
-          ) : (
+          )}
+
+          {eventStatus === "started" && (
             <div className="flex justify-center">
               <div className="px-10 py-5 rounded-lg bg-white border border-gray-200 shadow-md">
-
-                {phase === "day2_only" ? (
-                  <span className="font-display text-xl md:text-2xl font-semibold text-green-600 uppercase tracking-wide">
-                    Event Started
-                  </span>
-                ) : (
-                  <span className="font-display text-xl md:text-2xl font-semibold text-red-600 uppercase tracking-wide">
-                    Event Has Ended
-                  </span>
-                )}
-
+                <span className="text-xl md:text-2xl font-semibold text-purple-600 uppercase tracking-wide">
+                  Event Started
+                </span>
               </div>
             </div>
           )}
-        </motion.div>
+
+          {eventStatus === "ended" && (
+            <div className="flex justify-center">
+              <div className="px-10 py-5 rounded-lg bg-white border border-gray-200 shadow-md">
+                <span className="text-xl md:text-2xl font-semibold text-purple-600 uppercase tracking-wide">
+                  Event Has Ended
+                </span>
+              </div>
+            </div>
+          )}
+
+        </div>
 
         {/* WhatsApp Button */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-          className="mb-12"
-        >
+        <div className="mb-12">
           <Button
             size="lg"
             onClick={() =>
@@ -170,12 +164,12 @@ const HeroSection = () => {
                 "_blank"
               )
             }
-            className="text-white text-lg px-10 py-6 rounded-full font-display font-semibold bg-[#25D366] hover:bg-[#1ebe5d] transition-all duration-300 hover:scale-105"
+            className="text-white text-lg px-10 py-6 rounded-full font-semibold bg-[#25D366] hover:bg-[#1ebe5d] transition-all duration-300 hover:scale-105"
           >
             <MessageCircle className="mr-2 h-5 w-5" />
             Join WhatsApp Channel
           </Button>
-        </motion.div>
+        </div>
 
       </div>
     </section>
