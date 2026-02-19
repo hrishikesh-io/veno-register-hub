@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar, MessageCircle } from "lucide-react";
+import { ChevronDown, Calendar, MessageCircle } from "lucide-react";
 import { getEventPhase } from "@/lib/eventDates";
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/logo.png";
 import newlogo from "@/assets/newlogo.png";
 import newveno from "@/assets/newveno.png";
 
-interface HeroSectionProps {}
+interface HeroSectionProps {
+  onRegisterClick: () => void;
+}
 
 const TARGET_DATE = new Date("2026-02-19T10:00:00+05:30").getTime();
 
@@ -65,7 +67,7 @@ const FlipUnit = ({ value, label }: { value: number; label: string }) => {
   );
 };
 
-const HeroSection = () => {
+const HeroSection = ({ onRegisterClick }: HeroSectionProps) => {
   const countdown = useCountdown();
   const [phase, setPhase] = useState(getEventPhase());
 
@@ -78,16 +80,16 @@ const HeroSection = () => {
     <section className="hero-bg min-h-screen flex items-center justify-center relative">
       <div className="circuit-lines" />
 
+      {/* Watermark Logo */}
       <div className="absolute top-4 left-4 z-20">
         <img src={logo} alt="Ven-O-vation" className="h-10 md:h-14 opacity-70" />
       </div>
 
       <div className="container relative z-10 text-center px-4 py-20">
-
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
         >
           <span className="text-primary-foreground/70 font-body text-sm md:text-base uppercase tracking-[0.3em]">
             MVGM GPC Vennikulam presents
@@ -105,7 +107,7 @@ const HeroSection = () => {
             />
           </div>
 
-          <h2 className="font-display text-4xl md:text-6xl font-bold text-primary-foreground mb-2 opacity-80">
+          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-2 opacity-80">
             State Level Tech Fest 2026
           </h2>
 
@@ -114,23 +116,23 @@ const HeroSection = () => {
           </p>
         </motion.div>
 
-        {/* Countdown or Status */}
+        {/* Countdown Section */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
           className="mb-10"
         >
           {phase === "all_open" ? (
             <>
               <div className="flex items-center justify-center gap-2 mb-4">
                 <Calendar className="h-5 w-5 text-secondary" />
-                <span className="text-primary-foreground/70 text-sm uppercase tracking-widest">
+                <span className="text-primary-foreground/70 font-body text-sm uppercase tracking-widest">
                   Event starts in
                 </span>
               </div>
 
-              <div className="flex justify-center gap-4">
+              <div className="flex justify-center gap-3 md:gap-5">
                 <FlipUnit value={countdown.days} label="Days" />
                 <FlipUnit value={countdown.hours} label="Hours" />
                 <FlipUnit value={countdown.minutes} label="Minutes" />
@@ -139,28 +141,39 @@ const HeroSection = () => {
             </>
           ) : (
             <div className="flex justify-center">
-              <div className="px-10 py-5 rounded-xl backdrop-blur-md bg-white/5 border border-white/20 shadow-xl">
-
-                {phase === "day2_only" ? (
-                  <span className="font-display text-xl md:text-2xl font-bold text-green-400 drop-shadow-[0_0_10px_rgba(34,197,94,0.7)] uppercase tracking-wider">
-                    Event Started
-                  </span>
-                ) : (
-                  <span className="font-display text-xl md:text-2xl font-bold text-red-400 uppercase tracking-wider">
-                    Event Has Ended
-                  </span>
-                )}
-
+              <div className="bg-primary/10 backdrop-blur-md border border-primary/30 shadow-lg rounded-xl px-8 py-5">
+                <span className="font-display text-lg md:text-xl font-bold text-primary-foreground uppercase tracking-wider">
+                  {phase === "day2_only"
+                    ? "Event Started"
+                    : "Event Has Ended"}
+                </span>
               </div>
             </div>
           )}
         </motion.div>
 
+        {/* Register Button */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, delay: 0.6 }}
+          className="mb-6"
+        >
+          <Button
+            size="lg"
+            onClick={onRegisterClick}
+            className="btn-glow text-primary-foreground text-lg px-10 py-6 rounded-full font-display font-semibold animate-pulse-glow"
+          >
+            Register Now
+            <ChevronDown className="ml-2 h-5 w-5" />
+          </Button>
+        </motion.div>
+
         {/* WhatsApp Button */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, delay: 0.7 }}
           className="mb-12"
         >
           <Button
@@ -177,7 +190,16 @@ const HeroSection = () => {
             Join WhatsApp Channel
           </Button>
         </motion.div>
+      </div>
 
+      {/* Floating Register Button (Mobile) */}
+      <div className="fixed bottom-6 right-6 z-50 md:hidden">
+        <Button
+          onClick={onRegisterClick}
+          className="btn-glow text-primary-foreground rounded-full h-14 w-14 p-0 shadow-lg"
+        >
+          <ChevronDown className="h-6 w-6" />
+        </Button>
       </div>
     </section>
   );
