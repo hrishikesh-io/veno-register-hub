@@ -7,15 +7,12 @@ import logo from "@/assets/logo.png";
 import newlogo from "@/assets/newlogo.png";
 import newveno from "@/assets/newveno.png";
 
+interface HeroSectionProps {}
+
 const TARGET_DATE = new Date("2026-02-19T10:00:00+05:30").getTime();
 
 const useCountdown = () => {
-  const [timeLeft, setTimeLeft] = useState({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-  });
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
     const tick = () => {
@@ -45,10 +42,15 @@ const FlipUnit = ({ value, label }: { value: number; label: string }) => {
         <AnimatePresence mode="popLayout">
           <motion.span
             key={display}
-            initial={{ y: -30, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 25, opacity: 0 }}
-            transition={{ duration: 0.4 }}
+            initial={{ y: -30, opacity: 0, rotateZ: -3 }}
+            animate={{ y: 0, opacity: 1, rotateZ: 0 }}
+            exit={{ y: 25, opacity: 0, rotateZ: 3 }}
+            transition={{
+              duration: 0.5,
+              ease: [0.22, 1, 0.36, 1],
+              type: "spring",
+              bounce: 0.25,
+            }}
             className="absolute inset-0 flex items-center justify-center font-display text-3xl md:text-4xl font-bold text-gray-800"
           >
             {display}
@@ -76,7 +78,6 @@ const HeroSection = () => {
     <section className="hero-bg min-h-screen flex items-center justify-center relative">
       <div className="circuit-lines" />
 
-      {/* Top Logo */}
       <div className="absolute top-4 left-4 z-20">
         <img src={logo} alt="Ven-O-vation" className="h-10 md:h-14 opacity-70" />
       </div>
@@ -113,7 +114,7 @@ const HeroSection = () => {
           </p>
         </motion.div>
 
-        {/* Countdown OR Status */}
+        {/* Countdown or Status */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -138,14 +139,14 @@ const HeroSection = () => {
             </>
           ) : (
             <div className="flex justify-center">
-              <div className="px-10 py-5 rounded-lg bg-white border border-gray-200 shadow-md">
+              <div className="px-10 py-5 rounded-xl backdrop-blur-md bg-white/5 border border-white/20 shadow-xl">
 
                 {phase === "day2_only" ? (
-                  <span className="font-display text-xl md:text-2xl font-semibold text-green-600 uppercase tracking-wide">
+                  <span className="font-display text-xl md:text-2xl font-bold text-green-400 drop-shadow-[0_0_10px_rgba(34,197,94,0.7)] uppercase tracking-wider">
                     Event Started
                   </span>
                 ) : (
-                  <span className="font-display text-xl md:text-2xl font-semibold text-red-600 uppercase tracking-wide">
+                  <span className="font-display text-xl md:text-2xl font-bold text-red-400 uppercase tracking-wider">
                     Event Has Ended
                   </span>
                 )}
@@ -170,7 +171,7 @@ const HeroSection = () => {
                 "_blank"
               )
             }
-            className="text-white text-lg px-10 py-6 rounded-full font-display font-semibold bg-[#25D366] hover:bg-[#1ebe5d] transition-all duration-300 hover:scale-105"
+            className="text-white text-lg px-10 py-6 rounded-full font-display font-semibold bg-[#25D366] hover:bg-[#1ebe5d] transition-all duration-300 shadow-[0_0_20px_rgba(37,211,102,0.6)] hover:shadow-[0_0_35px_rgba(37,211,102,1)] hover:scale-105"
           >
             <MessageCircle className="mr-2 h-5 w-5" />
             Join WhatsApp Channel
