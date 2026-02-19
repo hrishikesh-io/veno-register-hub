@@ -139,17 +139,11 @@ const HeroSection = () => {
           ) : (
             <div className="flex justify-center">
               <div className="px-10 py-5 rounded-lg bg-white border border-gray-200 shadow-md">
-
-                {phase === "day2_only" ? (
-                  <span className="font-display text-xl md:text-2xl font-semibold text-green-600 uppercase tracking-wide">
-                    Event Started
-                  </span>
-                ) : (
-                  <span className="font-display text-xl md:text-2xl font-semibold text-red-600 uppercase tracking-wide">
-                    Event Has Ended
-                  </span>
-                )}
-
+                <span className="font-display text-xl md:text-2xl font-semibold text-primary uppercase tracking-wide">
+                  {phase === "day2_only"
+                    ? "Event Started"
+                    : "Event Has Ended"}
+                </span>
               </div>
             </div>
           )}
@@ -182,4 +176,4 @@ const HeroSection = () => {
   );
 };
 
-export default HeroSection;
+export default
