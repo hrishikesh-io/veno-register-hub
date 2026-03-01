@@ -6,14 +6,18 @@ import { Github, MapPin } from "lucide-react";
 const Index = () => {
   const formRef = useRef<HTMLDivElement>(null);
 
-  const scrollToForm = () => {
-    formRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
   return (
     <div className="min-h-screen bg-background">
-      <HeroSection onRegisterClick={scrollToForm} />
+      <HeroSection />
       <RegistrationForm ref={formRef} />
+
+      {/* Stay connected note */}
+      <div className="text-center py-6 px-4">
+        <p className="text-sm text-muted-foreground font-body">
+          Stay connected for future events and announcements.
+        </p>
+      </div>
+
       <footer className="py-10 px-4 border-t border-border bg-card/50">
         <div className="container flex flex-col items-center gap-6 text-center">
           <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-sm text-muted-foreground">
