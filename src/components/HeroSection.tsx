@@ -174,21 +174,6 @@ const HeroSection = ({ onRegisterClick }: HeroSectionProps) => {
           )}
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
-          className="mb-12"
-        >
-          <Button
-            size="lg"
-            onClick={onRegisterClick}
-            className="btn-glow text-primary-foreground text-lg px-10 py-6 rounded-full font-display font-semibold animate-pulse-glow"
-          >
-            Register Now
-            <ChevronDown className="ml-2 h-5 w-5" />
-          </Button>
-        </motion.div>
 
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
@@ -261,15 +246,6 @@ const HeroSection = ({ onRegisterClick }: HeroSectionProps) => {
 
       </div>
 
-      {/* Floating Register Button (mobile) */}
-      <div className="fixed bottom-6 right-6 z-50 md:hidden">
-        <Button
-          onClick={onRegisterClick}
-          className="btn-glow text-primary-foreground rounded-full h-14 w-14 p-0 shadow-lg"
-        >
-          <ChevronDown className="h-6 w-6" />
-        </Button>
-      </div>
     </section>
   );
 };
