@@ -92,45 +92,6 @@ const HeroSection = () => {
           </div>
         </motion.div>
 
-        {/* WhatsApp Button */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
-          className="mb-12"
-        >
-          <Button
-            size="lg"
-            onClick={() => window.open("https://whatsapp.com/channel/0029VbBq03lDDmFNWX0c3l03", "_blank")}
-            className="text-white text-lg px-10 py-6 rounded-full font-display font-semibold bg-[#25D366] hover:bg-[#1ebe5d] transition-all duration-300 shadow-[0_0_20px_rgba(37,211,102,0.6)] hover:shadow-[0_0_35px_rgba(37,211,102,1)] hover:scale-105"
-          >
-            <MessageCircle className="mr-2 h-5 w-5" />
-            Join WhatsApp Channel
-          </Button>
-        </motion.div>
-
-        {/* Pricing Cards */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.8 }}
-          className="flex flex-wrap justify-center gap-4 md:gap-6"
-        >
-          <div className="rounded-xl px-6 py-4 bg-white/10 backdrop-blur-md border border-white/20 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ease-in-out">
-            <div className="flex items-center justify-center text-white">
-              <span className="font-display font-semibold text-base md:text-lg">
-                ₹30 for Individual Program
-              </span>
-            </div>
-          </div>
-          <div className="rounded-xl px-6 py-4 bg-white/10 backdrop-blur-md border border-white/20 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ease-in-out">
-            <div className="flex items-center justify-center text-white">
-              <span className="font-display font-semibold text-base md:text-lg">
-                ₹50 for Group Program
-              </span>
-            </div>
-          </div>
-        </motion.div>
       </div>
     </section>
   );
